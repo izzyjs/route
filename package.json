@@ -1,7 +1,7 @@
 {
   "name": "@izzyjs/route",
   "description": "Use your AdonisJs routes in your Inertia.js application",
-  "version": "0.0.0",
+  "version": "0.0.1-0",
   "engines": {
     "node": ">=20.6.0"
   },
@@ -35,7 +35,15 @@
     "prepublishOnly": "npm run build",
     "index:commands": "adonis-kit index build/commands"
   },
-  "keywords": ["adonis", "adonisjs", "inertiajs", "ziggy", "route", "generator", "typescript"],
+  "keywords": [
+    "adonis",
+    "adonisjs",
+    "inertiajs",
+    "ziggy",
+    "route",
+    "generator",
+    "typescript"
+  ],
   "author": "Walaff Fernandes",
   "license": "MIT",
   "devDependencies": {
