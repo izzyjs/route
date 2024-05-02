@@ -3,7 +3,7 @@ import generateRoutes from '../src/generate_routes.js'
 
 export default class IzzyRoutes extends BaseCommand {
   static commandName = 'izzy:routes'
-  static description = 'Generate routes for @izzy/route package'
+  static description = 'Generate routes for @izzyjs/route package'
 
   async run() {
     this.logger.info('Generating routes file... ♻️')

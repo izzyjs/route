@@ -5,7 +5,7 @@ import type { Routes } from './types/routes.js'
 import type { SerializedRoute } from './types/manifest.js'
 
 export default async function generateRoutes() {
-  const baseDir = 'node_modules/@izzy/route/build/src/client'
+  const baseDir = 'node_modules/@izzyjs/route/build/src/client'
   const jsFile = `${baseDir}/routes.js`
   const dtsFile = `${baseDir}/routes.d.ts`
 

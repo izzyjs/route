@@ -21,7 +21,7 @@ export async function configure(command: ConfigureCommand) {
   await generateRoutes()
 
   await codemods.updateRcFile((rcFile) => {
-    rcFile.addProvider('@izzy/route/izzy_provider')
-    rcFile.addCommand('@izzy/route/commands')
+    rcFile.addProvider('@izzyjs/route/izzy_provider')
+    rcFile.addCommand('@izzyjs/route/commands')
   })
 }
