@@ -1,0 +1,27 @@
+/*
+|--------------------------------------------------------------------------
+| Configure hook
+|--------------------------------------------------------------------------
+|
+| The configure hook is called when someone runs "node ace configure <package>"
+| command. You are free to perform any operations inside this function to
+| configure the package.
+|
+| To make things easier, you have access to the underlying "ConfigureCommand"
+| instance and you can use codemods to modify the source files.
+|
+*/
+
+import ConfigureCommand from '@adonisjs/core/commands/configure'
+import generateRoutes from './src/generate_routes.js'
+
+export async function configure(command: ConfigureCommand) {
+  const codemods = await command.createCodemods()
+
+  await generateRoutes()
+
+  await codemods.updateRcFile((rcFile) => {
+    rcFile.addProvider('@izzy/route/izzy_provider')
+    rcFile.addCommand('@izzy/route/commands')
+  })
+}
