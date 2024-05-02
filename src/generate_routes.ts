@@ -1,6 +1,6 @@
 import { exec } from 'node:child_process'
 import { writeFile } from 'node:fs/promises'
-import fs from 'node:fs'
+import { existsSync, unlinkSync } from 'node:fs'
 import type { Routes } from './types/routes.js'
 import type { SerializedRoute } from './types/manifest.js'
 
@@ -14,12 +14,12 @@ export default async function generateRoutes() {
   const jsContent = javascriptContent(routes)
   const dtsContent = definitionContent(routes)
 
-  if (fs.existsSync(jsFile)) {
-    fs.unlinkSync(jsFile)
+  if (existsSync(jsFile)) {
+    unlinkSync(jsFile)
   }
 
-  if (fs.existsSync(dtsFile)) {
-    fs.unlinkSync(dtsFile)
+  if (existsSync(dtsFile)) {
+    unlinkSync(dtsFile)
   }
 
   await writeFile(jsFile, jsContent, 'utf-8')
@@ -54,7 +54,7 @@ async function namedRoutes() {
 
 async function runCommand() {
   return new Promise<Routes>((resolve, reject) => {
-    exec('node ace list:routes --json', (error, stdout, stderr) => {
+    exec('node --no-warnings ace list:routes --json', (error, stdout, stderr) => {
       if (error) reject(error)
       if (stderr) reject(stderr)
 
