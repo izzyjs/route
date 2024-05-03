@@ -1,3 +1,6 @@
+// @ts-ignore
+import type { RouteWithName, RouteWithParams } from '../client/routes.js'
+
 export type Routes = Router[]
 
 export interface Router {
@@ -19,3 +22,16 @@ export interface Handler {
   moduleNameOrPath?: string
   method?: string
 }
+
+export type ExtractName = Extract<RouteWithName, RouteWithParams>['name']
+
+export type Params<Name extends ExtractName> = {
+  [K in Extract<
+    RouteWithParams,
+    {
+      name: Name
+    }
+  >['params'][number]]: string
+}
+
+export type ExcludeName = Exclude<RouteWithName, RouteWithParams>

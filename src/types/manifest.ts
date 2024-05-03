@@ -6,12 +6,14 @@ const methods = {
   DELETE: 'delete',
 } as const
 
+export type Method = (typeof methods)[keyof typeof methods]
+
 /**
  * Shape of the serialized route specific to the formatter
  */
 export type SerializedRoute = {
-  name?: string
+  name: string
   path: string
   params?: string[]
-  method: (typeof methods)[keyof typeof methods]
+  method: Method
 }
