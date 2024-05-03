@@ -10,11 +10,20 @@ import type { SerializedRoute } from './types/manifest.js'
 
 export function serializeRoute(route: RouteJSON): SerializedRoute {
   const methods = route.methods.filter((method) => method !== 'HEAD').at(0)!
+  const params = route.pattern.match(/:\w+/g)?.map((param) => param.slice(1))
+
+  if (params) {
+    return {
+      name: route.name!,
+      path: route.pattern,
+      method: methods.toLowerCase() as any,
+      params,
+    }
+  }
 
   return {
     name: route.name!,
     path: route.pattern,
     method: methods.toLowerCase() as any,
-    params: route.pattern.match(/:\w+/g)?.map((param) => param.slice(1)),
   }
 }
