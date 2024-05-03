@@ -46,6 +46,14 @@
   ],
   "author": "Walaff Fernandes",
   "license": "MIT",
+  "homepage": "https://github.com/izzyjs/route#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/izzyjs/route.git"
+  },
+  "bugs": {
+    "url": "https://github.com/izzyjs/route/issues"
+  },
   "devDependencies": {
     "@adonisjs/assembler": "^7.2.3",
     "@adonisjs/core": "^6.3.1",
