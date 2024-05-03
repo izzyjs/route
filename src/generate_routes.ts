@@ -49,6 +49,12 @@ async function namedRoutes() {
     }
   }
 
+  if (bucket.length === 0) {
+    throw new Error(
+      'No named routes found see: https://docs.adonisjs.com/guides/routing#route-identifier'
+    )
+  }
+
   return bucket
 }
 
