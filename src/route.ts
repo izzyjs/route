@@ -10,6 +10,7 @@ export class Route extends String {
   readonly method: Method
   readonly params: string[] | undefined
   readonly name: string
+  readonly pattern: string
 
   private constructor(routeName?: string, params?: Record<string, string>) {
     const { routes } = Route.izzy()
@@ -40,6 +41,7 @@ export class Route extends String {
     this.name = exist.name
     this.method = exist.method
     this.params = exist.params
+    this.pattern = exist.path
   }
 
   static replaceRouteParams(routePath: string, params: Record<string, string>) {
@@ -108,7 +110,9 @@ export class Routes {
    * @param params route parameters
    * @example
    * ```ts
-   * route().current('users.show', { id: '1' }) // => true or false
+   * // current route is 'GET /users/1'
+   * route().current('users.show', { id: '1' }) // => true
+   * route().current('users.show', { id: '2' }) // => false
    * ```
    */
   current<Name extends ExtractName>(routeName: Name, params: Params<Name>): boolean
@@ -119,34 +123,27 @@ export class Routes {
    * @param routeName route name
    * @example
    * ```ts
-   * route().current('users.index') // => true or false
+   * // current route is 'GET /users/1'
+   * route().current('users.show') // => true
+   * route().current('user.*') // => true
+   * route().current('todos.*') // => false
    * ```
    */
   current<Name extends ExcludeName['name']>(routeName: Name, params?: never): boolean
-  current(routeName?: unknown, params?: unknown): RouteName | boolean {
+  current(routeName?: string, params?: unknown): RouteName | boolean {
     if (!routeName) {
       return this.currentRoute
     }
 
-    const exist = this.routes.find((r) => 'name' in r && r.name === routeName)
+    if (routeName.includes('*')) {
+      const regex = new RegExp(routeName.replace(/\*/g, '.*'))
 
-    if (!exist) {
-      throw new Error(`Route with name "${routeName}" not found`)
+      return regex.test(this.currentRoute)
     }
 
-    if ('params' in exist && exist.params) {
-      if (!params) {
-        throw new Error(
-          `Route "${routeName}" requires parameters: ${exist.params.map((p) => `"${p}"`).join(', ')}`
-        )
-      }
+    const route = Route.new(routeName, params)
 
-      return (
-        this.currentRoute === Route.replaceRouteParams(exist.path, params as Record<string, string>)
-      )
-    }
-
-    return this.currentRoute === exist.path
+    return this.currentRoute === route.toString()
   }
 
   /**
@@ -167,5 +164,43 @@ export class Routes {
     }
 
     return this.routes.some((r) => 'name' in r && r.name === routeName)
+  }
+
+  get params(): Record<string, string> {
+    const route = this.routes.find(({ path }) => {
+      const regex = new RegExp(
+        path
+          .split('/')
+          .map((p) => (p.startsWith(':') ? '([^/]+)' : p))
+          .join('/')
+      )
+
+      return regex.test(this.currentRoute)
+    })
+
+    if (route && route.params) {
+      const regex = new RegExp(
+        route.path
+          .split('/')
+          .map((p) => (p.startsWith(':') ? '([^/]+)' : p))
+          .join('/')
+      )
+
+      const values = this.currentRoute.match(regex)
+
+      if (!values) {
+        return {}
+      }
+
+      return route.params.reduce(
+        (acc, param, index) => ({
+          ...acc,
+          [param]: values[index + 1],
+        }),
+        {}
+      )
+    }
+
+    return {}
   }
 }
