@@ -55,7 +55,9 @@ Add edge plugin in entry view file `@routes` to use the `route()` into javascrip
 <!doctype html>
 <html>
   <head>
-    // rest of the file @routes() // Add this line // rest of the file
+    // rest of the file 
+    @routes() // Add this line
+    // rest of the file
   </head>
 
   <body>
@@ -99,13 +101,29 @@ The current method returns the current URL of the page or the URL of the page th
 ```javascript
 import { route } from '@izzyjs/route/client'
 
+// current /users/1
+
 route().current() // /users/1
 route().current('/users/1') // true
+route().current('/users/2') // false
+route().current('users.*') // true
 ```
 
 #### Has
 
-The has method returns a boolean value based on the URL of the page that the user is currently on.
+The has method returns a boolean value indicating whether the named route exists in the application.
+
+```javascript
+// start/routes.ts
+
+import router from '@adonisjs/core/services/router'
+
+const usersConstroller = () => import('#app/controllers/users_controller')
+
+router.get('/users', [usersConstroller, 'index']).as('users.index')
+router.get('/users/:id', [usersConstroller, 'show']).as('users.show')
+
+```
 
 ```javascript
 import { route } from '@izzyjs/route/client'
