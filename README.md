@@ -1,7 +1,9 @@
 # @izzyjs/route
 
 [![GitHub Actions Status](https://img.shields.io/github/actions/workflow/status/izzyjs/route/test.yml?branch=main&style=flat)](https://github.com/izzyjs/route/actions?query=workflow:Tests+branch:main)
-[![Coverage Status](https://coveralls.io/repos/github/izzyjs/route/badge.svg?branch=master)](https://coveralls.io/github/izzyjs/route?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/izzyjs/route/badge.svg?branch=main)](https://coveralls.io/github/izzyjs/route?branch=main)
+[![GitHub issues](https://img.shields.io/github/issues/izzyjs/route)](https://img.shields.io/github/issues/izzyjs/route)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/izzyjs/route)](https://img.shields.io/github/issues-pr/izzyjs/route)
 [![npm version](https://badge.fury.io/js/%40izzyjs%2Froute.svg)](https://badge.fury.io/js/%40izzyjs%2Froute)
 [![License](https://img.shields.io/github/license/izzyjs/route)](https://img.shields.io/github/license/izzyjs/route)
 
