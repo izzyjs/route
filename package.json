@@ -4,7 +4,8 @@
   "scripts": {
     "test": "turbo teste",
     "dev": "turbo dev",
-    "build": "pnpm build --filter=@izzyjs/route"
+    "build": "turbo build",
+    "typecheck": "turbo typecheck"
   },
   "keywords": [
     "adonis",
