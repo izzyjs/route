@@ -26,17 +26,18 @@ test.group('definitionContent', () => {
 // Do not modify this file
 
 export declare const routes: readonly [
-\t{
-\t\treadonly name: 'home';
-\t\treadonly path: '/home';
-\t\treadonly method: 'get';
-\t},
-\t{
-\t\treadonly name: 'user';
-\t\treadonly path: '/users/:id';
-\t\treadonly method: 'get';
-\t\treadonly params: readonly ['id'];
-\t}];
+  {
+    readonly name: 'home';
+    readonly path: '/home';
+    readonly method: 'get';
+  },
+  {
+    readonly name: 'user';
+    readonly path: '/users/:id';
+    readonly method: 'get';
+    readonly params: readonly ['id'];
+  }
+];
 export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
