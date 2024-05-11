@@ -10,6 +10,10 @@
       "cache": false,
       "persistent": true
     },
-    "postbuild": {}
+    "postbuild": {},
+    "test": {
+      "dependsOn": ["typecheck", "^test"],
+      "outputs": ["coverage/**"]
+    }
   }
 }

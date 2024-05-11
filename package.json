@@ -2,7 +2,7 @@
   "name": "izzyjs",
   "description": "Use your AdonisJs routes in your Inertia.js application",
   "scripts": {
-    "test": "turbo teste",
+    "test": "turbo test",
     "dev": "turbo dev",
     "build": "turbo build",
     "typecheck": "turbo typecheck"
