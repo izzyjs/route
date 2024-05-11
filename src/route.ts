@@ -11,8 +11,14 @@ export class Route extends String {
   readonly params: string[] | undefined
   readonly name: string
   readonly pattern: string
+  readonly qs: URLSearchParams
 
-  private constructor(routeName?: string, params?: Record<string, string>) {
+  private constructor(
+    routeName?: string,
+    params?: Record<string, string>,
+    qs: Record<string, any> = {},
+    prefix = ''
+  ) {
     const { routes } = Route.izzy()
 
     const exist = routes.find((r) => 'name' in r && r.name === routeName)
@@ -20,6 +26,8 @@ export class Route extends String {
     if (!exist) {
       throw new Error(`Route with name "${routeName}" not found`)
     }
+
+    const searchParams = new URLSearchParams(qs)
 
     let pattern: string
 
@@ -35,6 +43,14 @@ export class Route extends String {
       pattern = exist.path
     }
 
+    if (searchParams.toString()) {
+      pattern += `?${searchParams.toString()}`
+    }
+
+    if (prefix) {
+      pattern = prefix + pattern
+    }
+
     super(pattern)
 
     this.url = pattern
@@ -42,6 +58,7 @@ export class Route extends String {
     this.method = exist.method
     this.params = exist.params
     this.pattern = exist.path
+    this.qs = searchParams
   }
 
   static replaceRouteParams(routePath: string, params: Record<string, string>) {
@@ -51,15 +68,20 @@ export class Route extends String {
     )
   }
 
-  static new(routeName: unknown, params: unknown): Route
+  static new(routeName: unknown, params: unknown, qs?: unknown, prefix?: string): Route
   static new(routeName: unknown): Route
   static new(): Routes
-  static new(routeName?: unknown, params?: unknown) {
+  static new(routeName?: unknown, params?: unknown, qs?: unknown, prefix?: string): Route | Routes {
     if (!routeName) {
       return new Routes()
     }
 
-    return new Route(routeName as string, params as Record<string, string>)
+    return new Route(
+      routeName as string,
+      params as Record<string, string>,
+      qs as Record<string, any>,
+      prefix
+    )
   }
 
   static izzy() {
