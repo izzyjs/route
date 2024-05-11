@@ -18,8 +18,9 @@
     "./plugins/edge": "./build/src/plugins/edge.js",
     "./plugins/japa": "./build/src/plugins/japa.js",
     "./client": "./build/src/client.js",
-    "./izzy_provider": "./build/providers/izzy_provider.js",
-    "./commands": "./build/commands/main.js"
+    "./route_provider": "./build/providers/route_provider.js",
+    "./commands": "./build/commands/main.js",
+    "./route_middleware": "./build/middleware/route_middleware.js"
   },
   "scripts": {
     "clean": "del-cli build",
