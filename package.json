@@ -15,8 +15,9 @@
     ".": "./build/index.js",
     "./types": "./build/src/types/index.js",
     "./dev_hook": "./build/src/hooks/generate_hook.js",
-    "./plugin/edge": "./build/src/plugin/edge.js",
-    "./client": "./build/src/client/index.js",
+    "./plugins/edge": "./build/src/plugins/edge.js",
+    "./plugins/japa": "./build/src/plugins/japa.js",
+    "./client": "./build/src/client.js",
     "./izzy_provider": "./build/providers/izzy_provider.js",
     "./commands": "./build/commands/main.js"
   },
