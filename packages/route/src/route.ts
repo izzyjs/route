@@ -67,11 +67,11 @@ export class Route extends String {
     let currentRoute: string
 
     if (isBrowser()) {
-      routes = window.__izzy__.routes
+      routes = window.__izzy_route__.routes
       currentRoute = window.location.pathname
     } else {
-      routes = globalThis.__izzy__.routes
-      currentRoute = globalThis.__izzy__.current
+      routes = globalThis.__izzy_route__.routes
+      currentRoute = globalThis.__izzy_route__.current
     }
 
     return { routes, currentRoute }

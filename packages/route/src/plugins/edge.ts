@@ -20,12 +20,12 @@ export const edgePluginIzzy: EdgePluginIzzyOptions = (routes) => {
   return (edge) => {
     edge.global('izzy', (cspNonce: string, url: string) => {
       return [
-        `\t<script${cspNonce ? ` nonce="${cspNonce}"` : ''}>`,
-        `\t\t(globalThis || window).__izzy__ = {`,
-        `\t\t\troutes: ${JSON.stringify(routes)},`,
-        `\t\t\tcurrent: "${url}"`,
-        `\t\t};`,
-        '\t</script>',
+        `<script${cspNonce ? ` nonce="${cspNonce}"` : ''}>`,
+        `\t(globalThis || window).__izzy_route__ = {`,
+        `\t\troutes: ${JSON.stringify(routes)},`,
+        `\t\tcurrent: "${url}"`,
+        `\t};`,
+        '</script>',
       ].join('\n')
     })
 

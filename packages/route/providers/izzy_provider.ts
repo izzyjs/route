@@ -12,7 +12,7 @@ import { serializeRoute } from '../src/serialize_route.js'
 declare global {
   namespace globalThis {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    var __izzy__: {
+    var __izzy_route__: {
       routes: SerializedRoute[]
       current: string
     }
@@ -59,7 +59,7 @@ export default class IzzyRouteProvider {
   }
 
   #registerSsrRoutes(routes: SerializedRoute[]) {
-    globalThis.__izzy__ = {
+    globalThis.__izzy_route__ = {
       routes: routes,
       current: '',
     }
