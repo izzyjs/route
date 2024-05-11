@@ -1,3 +1,9 @@
+/**
+ * @izzyjs/route
+ *
+ * (c) IzzyJs - 2024
+ * For the full license information, please view the LICENSE file that was distributed with this source code.
+ */
 import { ExcludeName, ExtractName, Params } from './types/routes.js'
 import { Route, Routes } from './route.js'
 

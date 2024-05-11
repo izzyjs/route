@@ -1,3 +1,9 @@
+/**
+ * @izzyjs/route
+ *
+ * (c) IzzyJs - 2024
+ * For the full license information, please view the LICENSE file that was distributed with this source code.
+ */
 import { exec } from 'node:child_process'
 import { writeFile } from 'node:fs/promises'
 import { existsSync, unlinkSync } from 'node:fs'
@@ -26,7 +32,7 @@ export default async function generateRoutes() {
   await writeFile(dtsFile, dtsContent, 'utf-8')
 }
 
-async function namedRoutes() {
+export async function namedRoutes() {
   const output = await runCommand()
   const root = output.find((route) => route.domain === 'root')
 
