@@ -17,10 +17,10 @@
     "./dev_hook": "./build/src/hooks/generate_hook.js",
     "./plugins/edge": "./build/src/plugins/edge.js",
     "./plugins/japa": "./build/src/plugins/japa.js",
-    "./client": "./build/src/client.js",
-    "./route_provider": "./build/providers/route_provider.js",
+    "./client": "./build/src/client/index.js",
+    "./izzy_provider": "./build/providers/izzy_provider.js",
     "./commands": "./build/commands/main.js",
-    "./route_middleware": "./build/middleware/route_middleware.js"
+    "./izzy_middleware": "./build/src/izzy_middleware.js"
   },
   "scripts": {
     "clean": "del-cli build",

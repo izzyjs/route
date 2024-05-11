@@ -20,6 +20,21 @@ export async function configure(command: ConfigureCommand) {
 
   await generateRoutes()
 
+  await codemods.registerMiddleware('server', [
+    {
+      path: '@izzyjs/route/izzy_middleware',
+      position: 'after',
+    },
+  ])
+
+  await codemods.registerJapaPlugin('izzyRoutePlugin()', [
+    {
+      isNamed: true,
+      module: '@izzyjs/route/plugins/japa',
+      identifier: 'izzyRoutePlugin',
+    },
+  ])
+
   await codemods.updateRcFile((rcFile) => {
     rcFile.addProvider('@izzyjs/route/izzy_provider')
     rcFile.addCommand('@izzyjs/route/commands')
