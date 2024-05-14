@@ -8,7 +8,7 @@
 import type { ApplicationService, HttpRouterService } from '@adonisjs/core/types'
 import type { SerializedRoute } from '../src/types/manifest.js'
 import { serializeRoute } from '../src/serialize_route.js'
-import { RouteJSON } from '@adonisjs/core/types/http'
+import type { RouteJSON } from '@adonisjs/core/types/http'
 
 declare global {
   namespace globalThis {
