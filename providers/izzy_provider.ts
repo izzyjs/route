@@ -73,7 +73,7 @@ export default class IzzyRouteProvider {
 
   #routesToJSON(routes: (Route | RouteResource | RouteGroup | BriskRoute)[]): RouteJSON[] {
     return routes
-      .flatMap((route) => {
+      .map((route) => {
         if ('route' in route) {
           return route.route?.toJSON()
         }
@@ -85,6 +85,7 @@ export default class IzzyRouteProvider {
         return route.toJSON()
       })
       .filter((route): route is RouteJSON => route !== null)
+      .flat(Number.POSITIVE_INFINITY)
   }
 
   /**
