@@ -9,6 +9,7 @@ import type { ApplicationService, HttpRouterService } from '@adonisjs/core/types
 import type { SerializedRoute } from '../src/types/manifest.js'
 import { serializeRoute } from '../src/serialize_route.js'
 import type { RouteJSON } from '@adonisjs/core/types/http'
+import type { Route, RouteResource, RouteGroup, BriskRoute } from '@adonisjs/core/http'
 
 declare global {
   namespace globalThis {
@@ -53,11 +54,7 @@ export default class IzzyRouteProvider {
   }
 
   async #getTestRoutes(router: HttpRouterService) {
-    const routes = router.routes
-      .map((route) =>
-        'route' in route ? route.route?.toJSON() : 'toJSON' in route ? route.toJSON() : null
-      )
-      .filter((route): route is RouteJSON => route !== null)
+    const routes = this.#routesToJSON(router.routes)
     const domains = [...new Set(routes.map((route) => route.domain)).values()]
     const routesJSON: { domain: string; routes: SerializedRoute[] }[] = []
 
@@ -72,6 +69,22 @@ export default class IzzyRouteProvider {
     }
 
     return routesJSON
+  }
+
+  #routesToJSON(routes: (Route | RouteResource | RouteGroup | BriskRoute)[]): RouteJSON[] {
+    return routes
+      .flatMap((route) => {
+        if ('route' in route) {
+          return route.route?.toJSON()
+        }
+
+        if ('routes' in route) {
+          return this.#routesToJSON(route.routes)
+        }
+
+        return route.toJSON()
+      })
+      .filter((route): route is RouteJSON => route !== null)
   }
 
   /**
