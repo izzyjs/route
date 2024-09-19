@@ -18,6 +18,7 @@
     "./plugins/edge": "./build/src/plugins/edge.js",
     "./plugins/japa": "./build/src/plugins/japa.js",
     "./client": "./build/src/client/index.js",
+    "./routes": "./build/src/client/routes.js",
     "./izzy_provider": "./build/providers/izzy_provider.js",
     "./commands": "./build/commands/main.js",
     "./izzy_middleware": "./build/src/izzy_middleware.js"
