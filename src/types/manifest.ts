@@ -17,8 +17,3 @@ export type SerializedRoute = {
   params?: string[]
   method: Method
 }
-
-export type GlobalIzzyJs = {
-  routes: SerializedRoute[]
-  current: string
-}
