@@ -6,7 +6,7 @@
  */
 
 import type { ApplicationService, HttpRouterService } from '@adonisjs/core/types'
-import type { SerializedRoute } from '../src/types/manifest.js'
+import type { GlobalIzzyJs, SerializedRoute } from '../src/types/manifest.js'
 import { serializeRoute } from '../src/serialize_route.js'
 import type { RouteJSON } from '@adonisjs/core/types/http'
 import type { Route, RouteResource, RouteGroup, BriskRoute } from '@adonisjs/core/http'
@@ -14,10 +14,7 @@ import type { Route, RouteResource, RouteGroup, BriskRoute } from '@adonisjs/cor
 declare global {
   namespace globalThis {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    var __izzy_route__: {
-      routes: SerializedRoute[]
-      current: string
-    }
+    var __izzy_route__: GlobalIzzyJs
   }
 }
 
