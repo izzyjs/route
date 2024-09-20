@@ -41,7 +41,7 @@ export default class IzzyRouteProvider {
       })
     }
 
-    if (routesJSON.length === 0) {
+    if (routesJSON.length === 0 && this.app.getEnvironment() === 'test') {
       routesJSON = await this.#getTestRoutes(router)
     }
 
