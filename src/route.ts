@@ -4,7 +4,7 @@
  * (c) IzzyJs - 2024
  * For the full license information, please view the LICENSE file that was distributed with this source code.
  */
-import type { Method, SerializedRoute } from './types/manifest.js'
+import type { GlobalIzzyJs, Method, SerializedRoute } from './types/manifest.js'
 import { isBrowser } from './utils/is_browser.js'
 
 // @ts-ignore
@@ -12,11 +12,70 @@ import type { RouteName } from './client/routes.js'
 import type { ExcludeName, ExtractName, Params } from './types/routes.js'
 
 export class Route extends String {
+  /**
+   * A route path string that can be used to generate URLs
+   * @deprecated use `path` instead
+   * @example
+   * ```ts
+   * const route = Route.new('user.show', { id: '1' })
+   * console.log(route.url) // /users/1
+   * ```
+   */
   readonly url: string
+
+  /**
+   * The HTTP method for the route
+   */
   readonly method: Method
+
+  /**
+   * The route parameters as an array
+   * @example
+   * ```ts
+   * const route = Route.new('user.show', { id: '1' })
+   * console.log(route.params) // ['id']
+   * ```
+   */
   readonly params: string[] | undefined
+
+  /**
+   * The route name as a string
+   * @example
+   * ```ts
+   * const route = Route.new('user.show', { id: '1' })
+   * console.log(route.name) // user.show
+   * ```
+   */
   readonly name: string
+
+  /**
+   * The route pattern
+   * @example
+   * ```ts
+   * const route = Route.new('user.show', { id: '1' })
+   * console.log(route.pattern) // /users/:id
+   * ```
+   */
   readonly pattern: string
+
+  /**
+   * The route path with parameters replaced
+   * @example
+   * ```ts
+   * const route = Route.new('user.show', { id: '1' })
+   * console.log(route.path) // /users/1
+   * ```
+   */
+  readonly path: string
+
+  /**
+   * The query string
+   * @example
+   * ```ts
+   * const route = Route.new('user.show', { id: '1' }, { page: 1 })
+   * console.log(route.qs.toString()) // page=1
+   * ```
+   */
   readonly qs: URLSearchParams
 
   private constructor(
@@ -60,6 +119,7 @@ export class Route extends String {
     super(pattern)
 
     this.url = pattern
+    this.path = pattern
     this.name = exist.name
     this.method = exist.method
     this.params = exist.params
@@ -74,9 +134,26 @@ export class Route extends String {
     )
   }
 
+  /**
+   * Create a new `Route` instance
+   * @param routeName The route name
+   * @param params The route parameters
+   * @param qs The query string
+   * @param prefix The route prefix
+   */
   static new(routeName: unknown, params: unknown, qs?: unknown, prefix?: string): Route
+
+  /**
+   * Create a new `Route` instance
+   * @param routeName The route name
+   */
   static new(routeName: unknown): Route
+
+  /**
+   * Create a new `Routes` instance
+   */
   static new(): Routes
+
   static new(routeName?: unknown, params?: unknown, qs?: unknown, prefix?: string): Route | Routes {
     if (!routeName) {
       return new Routes()
@@ -90,7 +167,11 @@ export class Route extends String {
     )
   }
 
-  static izzy() {
+  /**
+   * Get the `Route` instance from the global Izzy object
+   * @returns { GlobalIzzyJs }
+   */
+  static izzy(): GlobalIzzyJs {
     let routes: SerializedRoute[]
     let currentRoute: string
 
@@ -102,11 +183,11 @@ export class Route extends String {
       currentRoute = globalThis.__izzy_route__.current
     }
 
-    return { routes, currentRoute }
+    return { routes, current: currentRoute }
   }
 
   toString() {
-    return this.url
+    return this.path
   }
 }
 
@@ -115,7 +196,7 @@ export class Routes {
   readonly routes: SerializedRoute[]
 
   constructor() {
-    const { routes, currentRoute } = Route.izzy()
+    const { routes, current: currentRoute } = Route.izzy()
 
     this.routes = routes
     this.currentRoute = currentRoute
