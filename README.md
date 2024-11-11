@@ -40,7 +40,7 @@ Add the following line to the `adonisrc.ts` file to register the `() => import('
 ```javascript
 {
   // rest of adonisrc.ts file
-  unstable_assembler: {
+  hooks: {
     onBuildStarting: [() => import('@adonisjs/vite/build_hook')],
     onDevServerStarted: [() => import('@izzyjs/route/dev_hook')] // Add this line,
   }
