@@ -13,11 +13,33 @@ This package provides a JavaScript `route()` function that can be used to genera
 
 ## Installation
 
-Install and configure the package using the following command :
+### Recommended (automatic)
+
+The following command will install and configure everything automatically (provider, middleware, Japa plugin, config file `config/izzyjs.ts`, and route generation):
 
 ```bash
 node ace add @izzyjs/route
 ```
+
+### Manual (step-by-step)
+
+If you prefer manual setup, install the package with your package manager and then run the configure hook:
+
+```bash
+# npm
+npm install @izzyjs/route
+
+# yarn
+yarn add @izzyjs/route
+
+# pnpm
+pnpm add @izzyjs/route
+
+# then configure
+node ace configure @izzyjs/route
+```
+
+The configure step will generate `config/izzyjs.ts`, register the provider/middleware/Japa plugin, and trigger an initial routes generation.
 
 ## Configuration
 
