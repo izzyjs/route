@@ -11,14 +11,16 @@
 | instance and you can use codemods to modify the source files.
 |
 */
-
 import ConfigureCommand from '@adonisjs/core/commands/configure'
-import generateRoutes from './src/generate_routes.js'
+import { stubsRoot } from './stubs/main.js'
+import { exec } from 'node:child_process'
+import { promisify } from 'node:util'
 
 export async function configure(command: ConfigureCommand) {
   const codemods = await command.createCodemods()
 
-  await generateRoutes()
+  // Write config/izzyjs.ts from stub (idempotent)
+  await codemods.makeUsingStub(stubsRoot, 'config/izzy_routes.stub', {})
 
   await codemods.registerMiddleware('server', [
     {
@@ -27,7 +29,7 @@ export async function configure(command: ConfigureCommand) {
     },
   ])
 
-  await codemods.registerJapaPlugin('izzyRoutePlugin()', [
+  await codemods.registerJapaPlugin('izzyRoutePlugin(app)', [
     {
       isNamed: true,
       module: '@izzyjs/route/plugins/japa',
@@ -39,4 +41,6 @@ export async function configure(command: ConfigureCommand) {
     rcFile.addProvider('@izzyjs/route/izzy_provider')
     rcFile.addCommand('@izzyjs/route/commands')
   })
+
+  await promisify(exec)('node ace izzy:routes')
 }

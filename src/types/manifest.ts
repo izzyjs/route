@@ -15,6 +15,7 @@ export type SerializedRoute = {
   name: string
   path: string
   params?: string[]
+  domain: 'root' | string
   method: Method
 }
 

@@ -1,9 +1,14 @@
 import { BaseCommand } from '@adonisjs/core/ace'
 import generateRoutes from '../src/generate_routes.js'
+import { CommandOptions } from '@adonisjs/core/types/ace'
 
 export default class IzzyRoutes extends BaseCommand {
   static commandName = 'izzy:routes'
   static description = 'Generate routes for @izzyjs/route package'
+
+  static options: CommandOptions = {
+    startApp: true,
+  }
 
   async run() {
     this.logger.info('Generating routes file... ♻️')

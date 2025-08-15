@@ -14,9 +14,10 @@ test.group('serializeRoute', () => {
       name: 'home',
       path: '/home',
       method: 'get',
+      domain: 'root',
     }
 
-    const serializedRoute = serializeRoute(route)
+    const serializedRoute = serializeRoute(route, 'root')
 
     assert.deepEqual(serializedRoute, expectedSerializedRoute)
   })
@@ -33,9 +34,10 @@ test.group('serializeRoute', () => {
       path: '/users/:id',
       method: 'get',
       params: ['id'],
+      domain: 'root',
     }
 
-    const serializedRoute = serializeRoute(route)
+    const serializedRoute = serializeRoute(route, 'root')
 
     assert.deepEqual(serializedRoute, expectedSerializedRoute)
   })

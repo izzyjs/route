@@ -2,8 +2,8 @@
 
 [![GitHub Actions Status](https://img.shields.io/github/actions/workflow/status/izzyjs/route/test.yml?branch=main&style=flat)](https://github.com/izzyjs/route/actions?query=workflow:Tests+branch:main)
 [![Coverage Status](https://coveralls.io/repos/github/izzyjs/route/badge.svg?branch=main)](https://coveralls.io/github/izzyjs/route?branch=main)
-[![GitHub issues](https://img.shields.io/github/issues/izzyjs/route)](https://img.shields.io/github/issues/izzyjs/route)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/izzyjs/route)](https://img.shields.io/github/issues-pr/izzyjs/route)
+[![GitHub issues](https://img.shields.io/github/issues/izzyjs/route)](https://github.com/izzyjs/route/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/izzyjs/route)](https://github.com/izzyjs/route/pulls)
 [![npm version](https://badge.fury.io/js/%40izzyjs%2Froute.svg)](https://badge.fury.io/js/%40izzyjs%2Froute)
 [![License](https://img.shields.io/github/license/izzyjs/route)](https://img.shields.io/github/license/izzyjs/route)
 
@@ -13,11 +13,33 @@ This package provides a JavaScript `route()` function that can be used to genera
 
 ## Installation
 
-Install and configure the package using the following command :
+### Recommended (automatic)
+
+The following command will install and configure everything automatically (provider, middleware, Japa plugin, config file `config/izzyjs.ts`, and route generation):
 
 ```bash
 node ace add @izzyjs/route
 ```
+
+### Manual (step-by-step)
+
+If you prefer manual setup, install the package with your package manager and then run the configure hook:
+
+```bash
+# npm
+npm install @izzyjs/route
+
+# yarn
+yarn add @izzyjs/route
+
+# pnpm
+pnpm add @izzyjs/route
+
+# then configure
+node ace configure @izzyjs/route
+```
+
+The configure step will generate `config/izzyjs.ts`, register the provider/middleware/Japa plugin, and trigger an initial routes generation.
 
 ## Configuration
 
@@ -57,15 +79,92 @@ Add edge plugin in entry view file `@routes` to use the `route()` into javascrip
 <!doctype html>
 <html>
   <head>
-    // rest of the file 
-    @routes() // Add this line
-    // rest of the file
+    // rest of the file @routes() // Add this line // rest of the file
   </head>
 
   <body>
     @inertia()
   </body>
 </html>
+```
+
+### Route Filtering
+
+@izzyjs/route supports filtering the list of routes it outputs, which is useful if you have certain routes that you don't want to be included and visible in your HTML source.
+
+**Important**: Hiding routes from the output is not a replacement for thorough authentication and authorization. Routes that should not be accessible publicly should be protected by authentication whether they're filtered out or not.
+
+#### Including/Excluding Routes
+
+To set up route filtering, create a config file in your app at `config/izzyjs.ts` and add either an `only` or `except` key containing an array of route name patterns.
+
+**Note**: You have to choose one or the other. Setting both `only` and `except` will disable filtering altogether and return all named routes.
+
+```typescript
+// config/izzyjs.ts
+import { defineConfig } from '@izzyjs/route'
+
+export default defineConfig({
+  baseUrl: 'https://example.com',
+
+  routes: {
+    // Include only specific routes
+    only: ['home', 'posts.index', 'posts.show'],
+
+    // OR exclude specific routes
+    // except: ['_debugbar.*', 'horizon.*', 'admin.*'],
+  },
+})
+```
+
+You can use asterisks as wildcards in route filters. In the example below, `admin.*` will exclude routes named `admin.login`, `admin.register`, etc.:
+
+```typescript
+// config/izzyjs.ts
+import { defineConfig } from '@izzyjs/route'
+
+export default defineConfig({
+  baseUrl: 'https://example.com',
+
+  routes: {
+    except: ['_debugbar.*', 'horizon.*', 'admin.*'],
+  },
+})
+```
+
+#### Filtering with Groups
+
+You can also define groups of routes that you want to make available in different places in your app, using a `groups` key in your config file:
+
+```typescript
+// config/izzyjs.ts
+import { defineConfig } from '@izzyjs/route'
+
+export default defineConfig({
+  baseUrl: 'https://example.com',
+
+  routes: {
+    groups: {
+      admin: ['admin.*', 'users.*'],
+      author: ['posts.*'],
+      public: ['home', 'about', 'contact'],
+    },
+  },
+})
+```
+
+When groups are configured, they will be available in your generated routes:
+
+```javascript
+import { routes, groups } from '@izzyjs/route/client'
+
+// Access all routes
+console.log(routes)
+
+// Access specific groups
+console.log(groups.admin) // Admin routes only
+console.log(groups.author) // Author routes only
+console.log(groups.public) // Public routes only
 ```
 
 ## Usage
@@ -124,7 +223,6 @@ const usersConstroller = () => import('#app/controllers/users_controller')
 
 router.get('/users', [usersConstroller, 'index']).as('users.index')
 router.get('/users/:id', [usersConstroller, 'show']).as('users.show')
-
 ```
 
 ```javascript
