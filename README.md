@@ -74,12 +74,12 @@ Add edge plugin in entry view file `@routes` to use the `route()` into javascrip
 
 #### Including/Excluding Routes
 
-To set up route filtering, create a config file in your app at `config/izzy_routes.ts` and add either an `only` or `except` key containing an array of route name patterns.
+To set up route filtering, create a config file in your app at `config/izzyjs.ts` and add either an `only` or `except` key containing an array of route name patterns.
 
 **Note**: You have to choose one or the other. Setting both `only` and `except` will disable filtering altogether and return all named routes.
 
 ```typescript
-// config/izzy_routes.ts
+// config/izzyjs.ts
 import { defineConfig } from '@izzyjs/route'
 
 export default defineConfig({
@@ -98,7 +98,7 @@ export default defineConfig({
 You can use asterisks as wildcards in route filters. In the example below, `admin.*` will exclude routes named `admin.login`, `admin.register`, etc.:
 
 ```typescript
-// config/izzy_routes.ts
+// config/izzyjs.ts
 import { defineConfig } from '@izzyjs/route'
 
 export default defineConfig({
@@ -115,7 +115,7 @@ export default defineConfig({
 You can also define groups of routes that you want to make available in different places in your app, using a `groups` key in your config file:
 
 ```typescript
-// config/izzy_routes.ts
+// config/izzyjs.ts
 import { defineConfig } from '@izzyjs/route'
 
 export default defineConfig({

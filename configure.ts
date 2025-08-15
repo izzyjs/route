@@ -14,9 +14,13 @@
 
 import ConfigureCommand from '@adonisjs/core/commands/configure'
 import generateRoutes from './src/generate_routes.js'
+import { stubsRoot } from './stubs/main.js'
 
 export async function configure(command: ConfigureCommand) {
   const codemods = await command.createCodemods()
+
+  // Write config/izzyjs.ts from stub (idempotent)
+  await codemods.makeUsingStub(stubsRoot, 'config/izzy_routes.stub', {})
 
   await generateRoutes(command.app)
 

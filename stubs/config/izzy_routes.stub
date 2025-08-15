@@ -1,0 +1,27 @@
+{{{
+  exports({ to: app.configPath('izzyjs.ts') })
+}}}
+import { defineConfig } from '@izzyjs/route'
+
+/**
+ * Izzy Routes configuration
+ *
+ * Adjust filters and groups to control which named routes are exposed
+ * to the client and how they are grouped.
+ */
+export default defineConfig({
+  baseUrl: process.env.APP_URL || 'http://localhost:3333',
+
+  routes: {
+    // Choose one: only or except. If both are set, filtering is disabled.
+    // only: ['home', 'posts.*'],
+    except: ['_debugbar.*', 'horizon.*', 'admin.*'],
+
+    // Optional named groups for selective consumption on the client
+    groups: {
+      admin: ['admin.*', 'users.*'],
+      author: ['posts.*'],
+      public: ['home', 'about', 'contact'],
+    },
+  },
+})
