@@ -111,34 +111,32 @@ export function javascriptContent(bucket: SerializedRoute[], routeConfig?: Confi
 }
 
 export function definitionContent(bucket: SerializedRoute[], routeConfig?: Config['routes']) {
-  const output = bucket
-    .map(({ method, path, name, params, domain }) => {
-      if (params) {
-        const routeType = [
-          '\t{',
-          `\t\treadonly name: '${name}';`,
-          `\t\treadonly path: '${path}';`,
-          `\t\treadonly method: '${method}';`,
-          `\t\treadonly params: readonly ['${params.join("','")}'];`,
-          `\t\treadonly domain: '${domain}';`,
-          '\t}',
-        ]
-
-        return routeType.join('\n')
-      }
-
+  const makeRouteType = ({ method, path, name, params, domain }: SerializedRoute) => {
+    if (params && params.length > 0) {
       const routeType = [
         '\t{',
         `\t\treadonly name: '${name}';`,
         `\t\treadonly path: '${path}';`,
         `\t\treadonly method: '${method}';`,
+        `\t\treadonly params: readonly ['${params.join("','")}'];`,
         `\t\treadonly domain: '${domain}';`,
         '\t}',
       ]
-
       return routeType.join('\n')
-    })
-    .join(',\n')
+    }
+
+    const routeType = [
+      '\t{',
+      `\t\treadonly name: '${name}';`,
+      `\t\treadonly path: '${path}';`,
+      `\t\treadonly method: '${method}';`,
+      `\t\treadonly domain: '${domain}';`,
+      '\t}',
+    ]
+    return routeType.join('\n')
+  }
+
+  const output = bucket.map(makeRouteType).join(',\n')
 
   let content = [
     '// Generated automatically by @izzyjs/route\n// Do not modify this file',
@@ -152,14 +150,25 @@ export function definitionContent(bucket: SerializedRoute[], routeConfig?: Confi
     "export type RouteName = Exclude<RouteWithName['name'], ''>;",
   ]
 
-  // Add groups types if configured
+  // Add groups types if configured (strongly typed to selected routes)
   if (routeConfig?.groups) {
     content.push('')
     content.push('// Route groups')
     content.push('export declare const groups: {')
 
-    for (const groupName of Object.keys(routeConfig.groups)) {
-      content.push(`\t${groupName}: readonly Route[];`)
+    for (const [groupName, patterns] of Object.entries(routeConfig.groups)) {
+      const groupRoutes = bucket.filter((route) => {
+        return patterns.some((pattern) => {
+          const regexPattern = pattern.replace(/\./g, '\\.').replace(/\*/g, '.*')
+          const regex = new RegExp(`^${regexPattern}$`)
+          return regex.test(route.name)
+        })
+      })
+
+      const groupOutput = groupRoutes.map(makeRouteType).join(',\n')
+      content.push(`\t${groupName}: readonly [`)
+      content.push(` ${groupOutput}`)
+      content.push(`\t];`)
     }
 
     content.push('};')
