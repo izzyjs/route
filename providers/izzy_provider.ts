@@ -30,7 +30,7 @@ export default class IzzyRouteProvider {
     let routesJSON: { domain: string; routes: SerializedRoute[] }[] = []
 
     for (let domain of domains) {
-      const domainRoutes = await Promise.all(routes[domain].map(serializeRoute))
+      const domainRoutes = await Promise.all(routes[domain].map((r) => serializeRoute(r, domain)))
 
       routesJSON.push({
         domain,
@@ -57,7 +57,9 @@ export default class IzzyRouteProvider {
 
     for (let domain of domains) {
       const domainRoutes = routes.filter((route) => route.domain === domain)
-      const serializedDomainRoutes = await Promise.all(domainRoutes.map(serializeRoute))
+      const serializedDomainRoutes = await Promise.all(
+        domainRoutes.map((r) => serializeRoute(r, domain))
+      )
 
       routesJSON.push({
         domain,
