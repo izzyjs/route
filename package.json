@@ -40,25 +40,6 @@
     "prepublishOnly": "npm run build",
     "index:commands": "adonis-kit index build/commands"
   },
-  "keywords": [
-    "adonis",
-    "adonisjs",
-    "inertiajs",
-    "ziggy",
-    "route",
-    "generator",
-    "typescript"
-  ],
-  "author": "Walaff Fernandes",
-  "license": "MIT",
-  "homepage": "https://github.com/izzyjs/route#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/izzyjs/route.git"
-  },
-  "bugs": {
-    "url": "https://github.com/izzyjs/route/issues"
-  },
   "devDependencies": {
     "@adonisjs/assembler": "^7.2.3",
     "@adonisjs/core": "^6.3.1",
@@ -83,6 +64,29 @@
     "@adonisjs/core": "^6.2.0",
     "edge.js": "^6.0.2"
   },
+  "author": "Walaff Fernandes",
+  "license": "MIT",
+  "homepage": "https://github.com/izzyjs/route#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/izzyjs/route.git"
+  },
+  "bugs": {
+    "url": "https://github.com/izzyjs/route/issues"
+  },
+  "keywords": [
+    "adonis",
+    "adonisjs",
+    "inertiajs",
+    "ziggy",
+    "route",
+    "generator",
+    "typescript"
+  ],
+  "eslintConfig": {
+    "extends": "@adonisjs/eslint-config/package"
+  },
+  "prettier": "@adonisjs/prettier-config",
   "publishConfig": {
     "access": "public",
     "tag": "latest"
@@ -101,9 +105,5 @@
     "exclude": [
       "tests/**"
     ]
-  },
-  "eslintConfig": {
-    "extends": "@adonisjs/eslint-config/package"
-  },
-  "prettier": "@adonisjs/prettier-config"
+  }
 }

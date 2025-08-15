@@ -18,7 +18,7 @@ import generateRoutes from './src/generate_routes.js'
 export async function configure(command: ConfigureCommand) {
   const codemods = await command.createCodemods()
 
-  await generateRoutes()
+  await generateRoutes(command.app)
 
   await codemods.registerMiddleware('server', [
     {

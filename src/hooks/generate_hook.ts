@@ -4,9 +4,10 @@ import generate from '../generate_routes.js'
 /**
  * The hook to be executed during the build process. You can perform
  */
-const biseGenerateHook: AssemblerHookHandler = async ({ logger }) => {
+const hook: AssemblerHookHandler = async ({ logger }) => {
   try {
-    await generate()
+    const app = await import('@adonisjs/core/services/app')
+    await generate(app.default)
     logger.success('Named routes file generated successfully 🚀')
   } catch (error) {
     logger.error('Named routes file generation failed 🚨')
@@ -14,4 +15,4 @@ const biseGenerateHook: AssemblerHookHandler = async ({ logger }) => {
   }
 }
 
-export default biseGenerateHook
+export default hook
