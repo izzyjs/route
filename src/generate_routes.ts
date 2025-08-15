@@ -13,7 +13,8 @@ import { filterRoutes } from './utils/route_filter.js'
 import { detectBuildPath, getRelativeBuildPath } from './utils/path_resolver.js'
 import { ApplicationService } from '@adonisjs/core/types'
 
-export default async function generateRoutes(app: ApplicationService) {
+export default async function generateRoutes() {
+  const app = await import('@adonisjs/core/services/app').then((m) => m.default)
   const baseDir = await detectBuildPath()
   const jsFile = join(baseDir, 'routes.js')
   const dtsFile = join(baseDir, 'routes.d.ts')
@@ -47,6 +48,8 @@ export default async function generateRoutes(app: ApplicationService) {
 
 export async function namedRoutes(app: ApplicationService) {
   const router = await app.container.make('router')
+  router.commit()
+
   const output = router.toJSON()
 
   const bucket = Object.entries(output).reduce((acc, [domain, routes]) => {

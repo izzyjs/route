@@ -14,7 +14,7 @@ export default class IzzyRoutes extends BaseCommand {
     this.logger.info('Generating routes file... ♻️')
 
     try {
-      await generateRoutes(this.app)
+      await generateRoutes()
       this.logger.success('Routes file generated successfully! 🎉')
     } catch (error) {
       this.logger.error('Error generating routes file 🚨')
