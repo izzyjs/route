@@ -22,4 +22,7 @@ export type SerializedRoute = {
 export interface GlobalIzzyJs {
   routes: SerializedRoute[]
   current: string
+  config?: {
+    baseUrl?: string
+  }
 }
