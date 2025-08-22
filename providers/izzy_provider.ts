@@ -42,32 +42,33 @@ export default class IzzyRouteProvider {
       routesJSON = await this.#getTestRoutes(router)
     }
 
-    const exists = routesJSON.find((route) => route.domain === 'root')
-
-    if (exists) {
-      this.#registerSsrRoutes(exists.routes)
-      await this.#registerEdgePlugin(exists.routes)
+    // Register all routes from all domains, not just root
+    if (routesJSON.length > 0) {
+      // Flatten all routes from all domains
+      const allRoutes = routesJSON.flatMap(({ routes: domainRoutes }) => domainRoutes)
+      this.#registerSsrRoutes(allRoutes)
+      await this.#registerEdgePlugin(allRoutes)
     }
   }
 
   async #getTestRoutes(router: HttpRouterService) {
-    const routes = this.#routesToJSON(router.routes)
-    const domains = [...new Set(routes.map((route) => route.domain)).values()]
-    const routesJSON: { domain: string; routes: SerializedRoute[] }[] = []
+    const testRoutes = this.#routesToJSON(router.routes)
+    const testDomains = [...new Set(testRoutes.map((route) => route.domain)).values()]
+    const testRoutesJSON: { domain: string; routes: SerializedRoute[] }[] = []
 
-    for (let domain of domains) {
-      const domainRoutes = routes.filter((route) => route.domain === domain)
+    for (let domain of testDomains) {
+      const domainRoutes = testRoutes.filter((route) => route.domain === domain)
       const serializedDomainRoutes = await Promise.all(
         domainRoutes.map((r) => serializeRoute(r, domain))
       )
 
-      routesJSON.push({
+      testRoutesJSON.push({
         domain,
         routes: serializedDomainRoutes,
       })
     }
 
-    return routesJSON
+    return testRoutesJSON
   }
 
   #routesToJSON(routes: (Route | RouteResource | RouteGroup | BriskRoute)[]): RouteJSON[] {
@@ -95,13 +96,21 @@ export default class IzzyRouteProvider {
 
     const edgeExports = await import('edge.js')
     const { edgePluginIzzy: edgePluginBise } = await import('../src/plugins/edge.js')
-    edgeExports.default.use(edgePluginBise(routes))
+
+    // Get configuration from app config
+    const config = this.app.config.get('izzyjs') as { baseUrl?: string } | undefined
+
+    edgeExports.default.use(edgePluginBise(routes, config))
   }
 
   #registerSsrRoutes(routes: SerializedRoute[]) {
+    // Get configuration from app config
+    const config = this.app.config.get('izzyjs') as { baseUrl?: string } | undefined
+
     globalThis.__izzy_route__ = {
       routes: routes,
       current: '',
+      config: config ? { baseUrl: config.baseUrl } : undefined,
     }
   }
 }
