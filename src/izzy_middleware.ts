@@ -5,7 +5,10 @@ export default class IzzyRouteMiddleware {
   handle({ request }: HttpContext, next: NextFn) {
     const { pathname } = new URL(request.completeUrl())
 
-    globalThis.__izzy_route__['current'] = pathname
+    // Update current route and preserve existing config
+    if (globalThis.__izzy_route__) {
+      globalThis.__izzy_route__['current'] = pathname
+    }
 
     return next()
   }
