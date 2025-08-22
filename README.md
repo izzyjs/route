@@ -153,6 +153,75 @@ export default defineConfig({
 })
 ```
 
+### Complete URLs
+
+When you configure `baseUrl` in your config file, the `route()` function automatically generates complete URLs with protocol, domain, and path. This is useful for:
+
+- External links and redirects
+- API calls to different domains
+- Email templates and notifications
+- Webhook URLs
+- Cross-domain requests
+
+```typescript
+// config/izzyjs.ts
+import { defineConfig } from '@izzyjs/route'
+
+export default defineConfig({
+  baseUrl: 'https://api.example.com',
+  routes: {
+    except: ['admin.*'],
+  },
+})
+```
+
+Now when you use the `route()` function, you get both the path and complete URL:
+
+```javascript
+import { route } from '@izzyjs/route/client'
+
+const userRoute = route('users.show', { id: '123' })
+
+console.log(userRoute.path) // "/users/123"
+console.log(userRoute.url) // "https://api.example.com/users/123"
+
+// Use url for external requests
+fetch(userRoute.url)
+window.open(userRoute.url)
+```
+
+The `baseUrl` can include:
+
+- Protocol: `http://` or `https://`
+- Domain: `example.com` or `api.example.com`
+- Port: `localhost:8080`
+- Subdomain: `admin.example.com`
+
+If the `baseUrl` is invalid or not configured, `url` falls back to just the path.
+
+#### Domain-Specific URLs
+
+When your routes have different domains (not just 'root'), the system automatically uses the route's specific domain instead of the `baseUrl.host`:
+
+```typescript
+// config/izzyjs.ts
+export default defineConfig({
+  baseUrl: 'https://example.com', // Protocol will be extracted from this
+  routes: { ... }
+})
+
+// Routes with different domains
+const homeRoute = route('home')           // domain: 'root'
+const apiRoute = route('api.users.index') // domain: 'api.example.com'
+const adminRoute = route('admin.dashboard') // domain: 'admin.example.com'
+
+console.log(homeRoute.url)   // "https://example.com/" (uses baseUrl.host)
+console.log(apiRoute.url)    // "https://api.example.com/users" (uses route domain)
+console.log(adminRoute.url)  // "https://admin.example.com/dashboard" (uses route domain)
+```
+
+This is useful for multi-domain applications where different routes need to point to different subdomains or domains.
+
 When groups are configured, they will be available in your generated routes:
 
 ```javascript
@@ -189,6 +258,33 @@ const url = route('users.show', { id: '1' }) // /users/1
 url.method // GET
 url.pattern // /users/:id
 url.path // /users/1
+url.url // "https://example.com/users/1" (when baseUrl is configured)
+```
+
+#### Complete URLs
+
+When `baseUrl` is configured, you can access the complete URL with protocol and domain:
+
+```javascript
+import { route } from '@izzyjs/route/client'
+
+const userRoute = route('users.show', { id: '123' })
+
+// Basic properties
+console.log(userRoute.path) // "/users/123"
+console.log(userRoute.url) // "https://api.example.com/users/123"
+
+// Use url for external requests
+fetch(userRoute.url)
+window.open(userRoute.url)
+
+// With query parameters
+const postsRoute = route('posts.index', { qs: { page: '2' } })
+console.log(postsRoute.url) // "https://api.example.com/posts?page=2"
+
+// With prefix
+const apiRoute = route('api.v1.users.index', { prefix: '/v1' })
+console.log(apiRoute.url) // "https://api.example.com/v1/api/v1/users"
 ```
 
 ### Routes
