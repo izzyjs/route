@@ -13,12 +13,11 @@ import type { ExcludeName, ExtractName, Params } from './types/routes.js'
 
 export class Route extends String {
   /**
-   * A route path string that can be used to generate URLs
-   * @deprecated use `path` instead
+   * The complete URL with protocol and domain when baseUrl is configured
    * @example
    * ```ts
    * const route = Route.new('user.show', { id: '1' })
-   * console.log(route.url) // /users/1
+   * console.log(route.url) // https://example.com/users/1
    * ```
    */
   readonly url: string
@@ -118,13 +117,52 @@ export class Route extends String {
 
     super(pattern)
 
-    this.url = pattern
     this.path = pattern
     this.name = exist.name
     this.method = exist.method
     this.params = exist.params
     this.pattern = exist.path
     this.qs = searchParams
+
+    // Generate complete URL with protocol and domain if baseUrl is configured
+    this.url = this.generateCompleteUrl(pattern, exist.domain)
+  }
+
+  /**
+   * Generate complete URL with protocol and domain when baseUrl is configured
+   */
+  private generateCompleteUrl(path: string, routeDomain?: string): string {
+    try {
+      const config = Route.getConfig()
+      if (config?.baseUrl) {
+        const baseUrl = new URL(config.baseUrl)
+
+        // If route has a specific domain (not 'root'), use that domain
+        // Otherwise use the baseUrl.host
+        const host = routeDomain && routeDomain !== 'root' ? routeDomain : baseUrl.host
+
+        return `${baseUrl.protocol}//${host}${path}`
+      }
+    } catch (error) {
+      // If baseUrl is invalid, fallback to path only
+      console.warn('Invalid baseUrl configuration, falling back to path only')
+    }
+    return path
+  }
+
+  /**
+   * Get the configuration from the global Izzy object
+   */
+  private static getConfig(): { baseUrl?: string } | null {
+    try {
+      if (isBrowser()) {
+        return window.__izzy_route__?.config || null
+      } else {
+        return globalThis.__izzy_route__?.config || null
+      }
+    } catch {
+      return null
+    }
   }
 
   static replaceRouteParams(routePath: string, params: Record<string, string>) {
