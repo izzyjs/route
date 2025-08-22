@@ -1,7 +1,10 @@
 import type { PluginFn, TagContract } from 'edge.js/types'
-import { SerializedRoute } from '../types/manifest.js'
+import type { SerializedRoute } from '../types/manifest.js'
 
-type EdgePluginIzzyOptions = (routes: SerializedRoute[]) => PluginFn<undefined>
+type EdgePluginIzzyOptions = (
+  routes: SerializedRoute[],
+  config?: { baseUrl?: string }
+) => PluginFn<undefined>
 
 const tag: TagContract = {
   block: false,
@@ -16,14 +19,16 @@ const tag: TagContract = {
   },
 }
 
-export const edgePluginIzzy: EdgePluginIzzyOptions = (routes) => {
+export const edgePluginIzzy: EdgePluginIzzyOptions = (routes, config) => {
   return (edge) => {
     edge.global('izzy', (cspNonce: string, url: string) => {
+      const configScript = config?.baseUrl ? `,\n\t\tconfig: { baseUrl: "${config.baseUrl}" }` : ''
+
       return [
         `<script${cspNonce ? ` nonce="${cspNonce}"` : ''}>`,
         `\t(globalThis || window).__izzy_route__ = {`,
         `\t\troutes: ${JSON.stringify(routes)},`,
-        `\t\tcurrent: "${url}"`,
+        `\t\tcurrent: "${url}"${configScript}`,
         `\t};`,
         '</script>',
       ].join('\n')
