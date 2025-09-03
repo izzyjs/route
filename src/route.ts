@@ -260,9 +260,10 @@ export class Routes {
    * // current route is 'GET /users/1'
    * route().current('users.show', { id: '1' }) // => true
    * route().current('users.show', { id: '2' }) // => false
+   * route().current('/users/*', { id: '1' }) // => true
    * ```
    */
-  current<Name extends ExtractName>(routeName: Name, params: Params<Name>): boolean
+  current<Name extends ExtractName>(routeName: Name | string, params: Params<Name>): boolean
 
   /**
    * Check if the current route matches the given route name
@@ -274,23 +275,76 @@ export class Routes {
    * route().current('users.show') // => true
    * route().current('user.*') // => true
    * route().current('todos.*') // => false
+   * route().current('/users/*') // => true
+   * route().current('/todos/*') // => false
    * ```
    */
-  current<Name extends ExcludeName['name']>(routeName: Name, params?: never): boolean
+  current<Name extends ExcludeName['name']>(routeName: Name | string, params?: never): boolean
+
   current(routeName?: string, params?: unknown): RouteName | boolean {
+    return Routes.current(routeName, params as Params<ExtractName>)
+  }
+
+  /**
+   * Check if the current route matches the given route name and parameters
+   * @summary unstable
+   * @example
+   * ```ts
+   * route.current() // => "/users"
+   * ```
+   */
+  static current(): RouteName
+
+  /**
+   * Check if the current route matches the given route name and parameters
+   * @summary unstable
+   * @param routeName route name
+   * @param params route parameters
+   * @example
+   * ```ts
+   * // current route is 'GET /users/1'
+   * route.current('users.show', { id: '1' }) // => true
+   * route.current('users.show', { id: '2' }) // => false
+   * route.current('/users/*', { id: '1' }) // => true
+   * ```
+   */
+  static current<Name extends ExtractName>(routeName: Name | string, params: Params<Name>): boolean
+
+  /**
+   * Check if the current route matches the given route name
+   * @summary unstable
+   * @param routeName route name
+   * @example
+   * ```ts
+   * // current route is 'GET /users/1'
+   * route.current('users.show') // => true
+   * route.current('user.*') // => true
+   * route.current('todos.*') // => false
+   * route.current('/users/*') // => true
+   * route.current('/todos/*') // => false
+   * ```
+   */
+  static current<Name extends ExcludeName['name']>(
+    routeName: Name | string,
+    params?: never
+  ): boolean
+
+  static current(routeName?: string, params?: unknown): RouteName | boolean {
+    const routes = new Routes()
+
     if (!routeName) {
-      return this.currentRoute
+      return routes.currentRoute
     }
 
     if (routeName.includes('*')) {
       const regex = new RegExp(routeName.replace(/\*/g, '.*'))
 
-      return regex.test(this.currentRoute)
+      return regex.test(routes.currentRoute)
     }
 
     const route = Route.new(routeName, params)
 
-    return this.currentRoute === route.toString()
+    return routes.currentRoute === route.toString()
   }
 
   /**

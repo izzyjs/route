@@ -51,3 +51,5 @@ export function route(): Routes
 export function route(routeName?: unknown, options?: any): Route | Routes {
   return Route.new(routeName, options?.params, options?.qs, options?.prefix)
 }
+
+route.current = Routes.current
