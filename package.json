@@ -1,7 +1,7 @@
 {
   "name": "@izzyjs/route",
   "description": "Use your AdonisJs routes in your Inertia.js application",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "engines": {
     "node": ">=20.6.0"
   },
