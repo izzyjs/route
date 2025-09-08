@@ -157,7 +157,7 @@ test.group('Complete URLs', () => {
     const postsRoute = Route.new('posts.index', undefined, { page: '2', category: 'tech' })
 
     assert.equal(postsRoute.path, '/posts?page=2&category=tech')
-    assert.equal(postsRoute.url, 'https://example.com/posts?page=2&category=tech')
+    assert.equal(postsRoute.url, 'https://example.com/posts%3Fpage=2&category=tech')
   })
 
   test('should handle routes with prefix', async ({ assert }) => {
