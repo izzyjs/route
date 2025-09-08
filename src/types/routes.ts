@@ -1,5 +1,6 @@
 // @ts-ignore
 import type { RouteWithName, RouteWithParams } from '../client/routes.js'
+export type { Route as IzzyRoute } from '../route.js'
 
 export type Routes = Router[]
 
