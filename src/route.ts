@@ -141,7 +141,10 @@ export class Route extends String {
         // Otherwise use the baseUrl.host
         const host = routeDomain && routeDomain !== 'root' ? routeDomain : baseUrl.host
 
-        return `${baseUrl.protocol}//${host}${path}`
+        baseUrl.pathname = path
+        baseUrl.host = host
+
+        return baseUrl.toString()
       }
     } catch (error) {
       // If baseUrl is invalid, fallback to path only
