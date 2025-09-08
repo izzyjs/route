@@ -157,7 +157,7 @@ test.group('URL Generation', () => {
     const postsRoute = Route.new('posts.index', undefined, { page: '2', category: 'tech' })
 
     assert.equal(postsRoute.path, '/posts?page=2&category=tech')
-    assert.equal(postsRoute.url, 'https://example.com/posts%3Fpage=2&category=tech')
+    assert.equal(postsRoute.url, 'https://example.com/posts?page=2&category=tech')
   })
 
   test('should handle routes with prefix', async ({ assert }) => {
@@ -293,5 +293,117 @@ test.group('URL Generation', () => {
     // Should use route domain with its own port (since it already has one)
     assert.equal(adminRoute.path, '/dashboard')
     assert.equal(adminRoute.url, 'https://admin.example.com:3000/dashboard')
+  })
+
+  test('should handle routes with hash fragments', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'home',
+          path: '/',
+          method: 'get',
+          domain: 'root',
+        },
+        {
+          name: 'users.show',
+          path: '/users/:id',
+          method: 'get',
+          params: ['id'],
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    const homeRoute = Route.new('home', undefined, undefined, undefined, 'contato')
+    const userRoute = Route.new('users.show', { id: '123' }, undefined, undefined, 'profile')
+
+    assert.equal(homeRoute.path, '/#contato')
+    assert.equal(homeRoute.url, 'https://example.com/#contato')
+    assert.equal(homeRoute.hash, 'contato')
+
+    assert.equal(userRoute.path, '/users/123#profile')
+    assert.equal(userRoute.url, 'https://example.com/users/123#profile')
+    assert.equal(userRoute.hash, 'profile')
+  })
+
+  test('should handle routes with query parameters and hash fragments', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.index',
+          path: '/posts',
+          method: 'get',
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    const postsRoute = Route.new(
+      'posts.index',
+      undefined,
+      { page: '2', category: 'tech' },
+      undefined,
+      'comments'
+    )
+
+    assert.equal(postsRoute.path, '/posts?page=2&category=tech#comments')
+    assert.equal(postsRoute.url, 'https://example.com/posts?page=2&category=tech#comments')
+    assert.equal(postsRoute.hash, 'comments')
+  })
+
+  test('should handle routes with prefix, query parameters and hash fragments', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'api.users.index',
+          path: '/api/users',
+          method: 'get',
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://api.example.com',
+      },
+    }
+
+    const apiRoute = Route.new('api.users.index', undefined, { page: '1' }, '/v1', 'list')
+
+    assert.equal(apiRoute.path, '/v1/api/users?page=1#list')
+    assert.equal(apiRoute.url, 'https://api.example.com/v1/api/users?page=1#list')
+    assert.equal(apiRoute.hash, 'list')
+  })
+
+  test('should handle empty hash fragment', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'home',
+          path: '/',
+          method: 'get',
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    const homeRoute = Route.new('home', undefined, undefined, undefined, '')
+
+    assert.equal(homeRoute.path, '/')
+    assert.equal(homeRoute.url, 'https://example.com/')
+    assert.equal(homeRoute.hash, '')
   })
 })
