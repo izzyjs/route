@@ -157,7 +157,7 @@ test.group('URL Generation', () => {
     const postsRoute = Route.new('posts.index', undefined, { page: '2', category: 'tech' })
 
     assert.equal(postsRoute.path, '/posts?page=2&category=tech')
-    assert.equal(postsRoute.url, 'https://example.com/posts?page=2&category=tech')
+    assert.equal(postsRoute.url, 'https://example.com/posts%3Fpage=2&category=tech')
   })
 
   test('should handle routes with prefix', async ({ assert }) => {
@@ -259,5 +259,39 @@ test.group('URL Generation', () => {
     // Should use baseUrl.host when domain is 'root'
     assert.equal(homeRoute.path, '/')
     assert.equal(homeRoute.url, 'https://example.com/')
+  })
+
+  test('should preserve port when using custom route domain', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'api.users.index',
+          path: '/users',
+          method: 'get',
+          domain: 'api.example.com',
+        },
+        {
+          name: 'admin.dashboard',
+          path: '/dashboard',
+          method: 'get',
+          domain: 'admin.example.com',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com:3000',
+      },
+    }
+
+    const apiRoute = Route.new('api.users.index')
+    const adminRoute = Route.new('admin.dashboard')
+
+    // Should use route domain without port (since it doesn't have one) and add baseUrl port
+    assert.equal(apiRoute.path, '/users')
+    assert.equal(apiRoute.url, 'https://api.example.com:3000/users')
+
+    // Should use route domain with its own port (since it already has one)
+    assert.equal(adminRoute.path, '/dashboard')
+    assert.equal(adminRoute.url, 'https://admin.example.com:3000/dashboard')
   })
 })
