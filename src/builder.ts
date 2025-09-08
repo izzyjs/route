@@ -62,19 +62,19 @@ class RequestBuilder<ResponseSuccess = any, ResponseFailed = Error, Request = an
 
       switch (this.route.method) {
         case 'get':
-          response = await this.httpClient.get(this.route.path, this.config)
+          response = await this.httpClient.get(this.route.url, this.config)
           break
         case 'post':
-          response = await this.httpClient.post(this.route.path, this.data, this.config)
+          response = await this.httpClient.post(this.route.url, this.data, this.config)
           break
         case 'put':
-          response = await this.httpClient.put(this.route.path, this.data, this.config)
+          response = await this.httpClient.put(this.route.url, this.data, this.config)
           break
         case 'delete':
-          response = await this.httpClient.delete(this.route.path, this.config)
+          response = await this.httpClient.delete(this.route.url, this.config)
           break
         case 'patch':
-          response = await this.httpClient.patch(this.route.path, this.data, this.config)
+          response = await this.httpClient.patch(this.route.url, this.data, this.config)
           break
         default:
           throw new Error(`Unsupported HTTP method: ${this.route.method}`)
