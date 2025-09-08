@@ -6,6 +6,7 @@
  */
 import { ExcludeName, ExtractName, Params } from '../types/routes.js'
 import { Route, Routes } from '../route.js'
+import builder from '../builder.js'
 
 /**
  * Resolve a route path by its name and parameters
@@ -24,6 +25,7 @@ export function route<Name extends ExtractName>(
     params: Params<Name>
     qs?: Record<string, any>
     prefix?: string
+    hash?: string
   }
 ): Route
 
@@ -37,19 +39,22 @@ export function route<Name extends ExtractName>(
  * // => "/users"
  * ```
  */
-export function route<Name extends ExcludeName['name']>(
+export function route<Name extends ExcludeName>(
   routeName: Name,
   options?: {
     params?: never
     qs?: Record<string, any>
     prefix?: string
+    hash?: string
   }
 ): Route
 
 export function route(): Routes
 
 export function route(routeName?: unknown, options?: any): Route | Routes {
-  return Route.new(routeName, options?.params, options?.qs, options?.prefix)
+  return Route.new(routeName, options?.params, options?.qs, options?.prefix, options?.hash)
 }
 
 route.current = Routes.current
+route.new = Route.new
+route.builder = builder

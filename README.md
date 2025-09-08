@@ -7,9 +7,52 @@
 [![npm version](https://badge.fury.io/js/%40izzyjs%2Froute.svg)](https://badge.fury.io/js/%40izzyjs%2Froute)
 [![License](https://img.shields.io/github/license/izzyjs/route)](https://img.shields.io/github/license/izzyjs/route)
 
-**_Use your AdonisJs routes in JavaScript._**
+**_Use your AdonisJs routes in JavaScript with advanced HTTP client capabilities._**
 
-This package provides a JavaScript `route()` function that can be used to generate URLs for named routes defined in an AdonisJs application.
+This package provides a JavaScript `route()` function and a powerful `builder` for generating URLs and making HTTP requests to named routes defined in an AdonisJs application. Features include hash fragments, query parameters, TypeScript support, and automatic CSRF protection.
+
+## Key Features
+
+- 🚀 **Route Generation** - Generate URLs for named AdonisJs routes
+- 🔗 **Hash Fragments** - Support for hash fragments (`/path#section`)
+- 🌐 **Complete URLs** - Generate full URLs with protocol and domain
+- 🔧 **Builder API** - Fluent API for HTTP requests with TypeScript support
+- 🛡️ **CSRF Protection** - Automatic CSRF token handling
+- 📝 **TypeScript** - Full TypeScript support with type inference
+- 🎯 **Query Parameters** - Easy query parameter management
+- 🔄 **HTTP Methods** - Support for GET, POST, PUT, DELETE, PATCH
+- ⚡ **Error Handling** - Global error handling and response management
+- 🎨 **Route Filtering** - Filter routes by patterns or groups
+
+## Quick Start
+
+> **ℹ️ Note**: The `baseUrl` is **mandatory** in your `config/izzyjs.ts` file and will always be available for complete URLs.
+
+```javascript
+import { route } from '@izzyjs/route/client'
+import builder from '@izzyjs/route/builder'
+
+// Generate URLs
+const userUrl = route('users.show', { params: { id: '123' } })
+console.log(userUrl.path) // "/users/123"
+console.log(userUrl.url) // "https://example.com/users/123" (requires baseUrl config)
+
+// With hash fragments
+const homeWithHash = route('home', { hash: 'contact' })
+console.log(homeWithHash.path) // "/#contact"
+
+// Make HTTP requests
+const result = await builder('users.show', { id: '123' })
+  .withQs({ include: 'profile' })
+  .withHash('details')
+  .request()
+  .successType<UserResponse>()
+  .run()
+
+if (result.data) {
+  console.log('User:', result.data)
+}
+```
 
 ## Installation
 
@@ -105,7 +148,7 @@ To set up route filtering, create a config file in your app at `config/izzyjs.ts
 import { defineConfig } from '@izzyjs/route'
 
 export default defineConfig({
-  baseUrl: 'https://example.com',
+  baseUrl: 'https://example.com', // ⚠️ MANDATORY - Required for complete URLs
 
   routes: {
     // Include only specific routes
@@ -155,7 +198,7 @@ export default defineConfig({
 
 ### Complete URLs
 
-When you configure `baseUrl` in your config file, the `route()` function automatically generates complete URLs with protocol, domain, and path. This is useful for:
+The `baseUrl` is **mandatory** in your `defineConfig`. When configured, the `route()` function automatically generates complete URLs with protocol, domain, and path. This is useful for:
 
 - External links and redirects
 - API calls to different domains
@@ -243,32 +286,131 @@ Now that we've followed all the steps, we're ready to use `route()` on the clien
 ```javascript
 import { route } from '@izzyjs/route/client'
 
-const url = route('users.show', { id: '1' }) // /users/1
+const url = route('users.show', { params: { id: '1' } }) // /users/1
 ```
 
 ### Route
 
-Is a callback class with a parameter for route(), with information about the method, partern and path itself.
+Is a callback class with a parameter for route(), with information about the method, pattern and path itself.
+
+#### API Options
+
+The `route()` function accepts an options object with the following properties:
+
+- **`params`** - Route parameters (required for routes with parameters)
+- **`qs`** - Query string parameters
+- **`prefix`** - Route prefix
+- **`hash`** - Hash fragment
 
 ```javascript
 import { route } from '@izzyjs/route/client'
 
-const url = route('users.show', { id: '1' }) // /users/1
+// Basic usage
+const url = route('users.show', { params: { id: '1' } }) // /users/1
+
+// With all options
+const fullUrl = route('users.show', {
+  params: { id: '1' },
+  qs: { page: '2' },
+  prefix: '/api/v1',
+  hash: 'profile',
+})
 
 url.method // GET
 url.pattern // /users/:id
 url.path // /users/1
 url.url // "https://example.com/users/1" (when baseUrl is configured)
+url.qs // URLSearchParams object
+url.hash // hash fragment (if provided)
+```
+
+#### Route Object Properties
+
+The `route` object also provides additional methods:
+
+```javascript
+import { route } from '@izzyjs/route/client'
+
+// Check current route
+route().current() // Returns current route path
+route().current('users.show', { id: '1' }) // Check if current route matches
+
+// Create new Route instance (alternative to route function)
+route.new('users.show', { id: '1' }, { page: '2' }, '/api', 'profile')
+
+// Access builder for HTTP requests
+route.builder('users.show', { id: '1' }).withQs({ page: '2' }).request()
+```
+
+#### Hash Fragments
+
+You can now add hash fragments to your routes for navigation to specific sections of a page:
+
+```javascript
+import { route } from '@izzyjs/route/client'
+
+// Basic hash usage
+const homeWithHash = route('home', { hash: 'contact' })
+console.log(homeWithHash.path) // "/#contact"
+console.log(homeWithHash.url) // "https://example.com/#contact"
+console.log(homeWithHash.hash) // "contact"
+
+// Hash with parameters
+const userWithHash = route('users.show', {
+  params: { id: '123' },
+  hash: 'profile',
+})
+console.log(userWithHash.path) // "/users/123#profile"
+console.log(userWithHash.url) // "https://example.com/users/123#profile"
+
+// Hash with query parameters
+const postsWithHash = route('posts.index', {
+  qs: { page: '2' },
+  hash: 'comments',
+})
+console.log(postsWithHash.path) // "/posts?page=2#comments"
+console.log(postsWithHash.url) // "https://example.com/posts?page=2#comments"
+
+// Hash with prefix
+const apiWithHash = route('api.users.index', {
+  qs: { page: '1' },
+  prefix: '/v1',
+  hash: 'list',
+})
+console.log(apiWithHash.path) // "/v1/api/users?page=1#list"
+console.log(apiWithHash.url) // "https://api.example.com/v1/users?page=1#list"
 ```
 
 #### Complete URLs
+
+The `url` property provides complete URLs with protocol and domain, but **requires the `baseUrl` to be configured** in your `config/izzyjs.ts` file.
+
+**Important**: The `baseUrl` is **mandatory** in the `defineConfig` and will always be available.
+
+##### Configuration
+
+The `baseUrl` is **mandatory** in your `config/izzyjs.ts` file:
+
+```typescript
+// config/izzyjs.ts
+import { defineConfig } from '@izzyjs/route'
+
+export default defineConfig({
+  baseUrl: process.env.APP_URL || 'http://localhost:3333',
+  // ... other config
+})
+```
+
+##### How URL Generation Works
+
+The `url` property always returns complete URLs with protocol and domain, using the configured `baseUrl`.
 
 When `baseUrl` is configured, you can access the complete URL with protocol and domain:
 
 ```javascript
 import { route } from '@izzyjs/route/client'
 
-const userRoute = route('users.show', { id: '123' })
+const userRoute = route('users.show', { params: { id: '123' } })
 
 // Basic properties
 console.log(userRoute.path) // "/users/123"
@@ -285,6 +427,65 @@ console.log(postsRoute.url) // "https://api.example.com/posts?page=2"
 // With prefix
 const apiRoute = route('api.v1.users.index', { prefix: '/v1' })
 console.log(apiRoute.url) // "https://api.example.com/v1/api/v1/users"
+```
+
+##### Examples: With vs Without Configuration
+
+**With `baseUrl` configured:**
+
+```javascript
+// config/izzyjs.ts
+export default defineConfig({
+  baseUrl: 'https://api.example.com',
+})
+
+const userRoute = route('users.show', { params: { id: '123' } })
+console.log(userRoute.path) // "/users/123"
+console.log(userRoute.url) // "https://api.example.com/users/123" ✅ Complete URL
+```
+
+##### Supported `baseUrl` Formats
+
+The `baseUrl` supports various formats:
+
+```typescript
+// config/izzyjs.ts
+export default defineConfig({
+  // HTTP
+  baseUrl: 'http://localhost:3333',
+
+  // HTTPS
+  baseUrl: 'https://api.example.com',
+
+  // With port
+  baseUrl: 'http://localhost:8080',
+
+  // With subdomain
+  baseUrl: 'https://api.example.com',
+
+  // Using environment variable (recommended)
+  baseUrl: process.env.APP_URL || 'http://localhost:3333',
+})
+```
+
+##### Domain-Specific URLs
+
+When your routes have different domains (not just 'root'), the system automatically uses the route's specific domain:
+
+```typescript
+// config/izzyjs.ts
+export default defineConfig({
+  baseUrl: 'https://example.com', // Protocol will be extracted from this
+})
+
+// Routes with different domains
+const homeRoute = route('home') // domain: 'root'
+const apiRoute = route('api.users.index') // domain: 'api.example.com'
+const adminRoute = route('admin.dashboard') // domain: 'admin.example.com'
+
+console.log(homeRoute.url) // "https://example.com/" (uses baseUrl.host)
+console.log(apiRoute.url) // "https://api.example.com/users" (uses route domain)
+console.log(adminRoute.url) // "https://admin.example.com/dashboard" (uses route domain)
 ```
 
 ### Routes
@@ -339,7 +540,186 @@ import { route } from '@izzyjs/route/client'
 route().params() // { id: '1' }
 ```
 
-These features enable seamless integration of AdonisJs routing within your JavaScript applications, enhancing flexibility and maintainability. By leveraging route(), you can easily manage and navigate your application routes with ease, ensuring a smooth user experience.
+### Builder (Advanced HTTP Requests)
+
+The `builder` provides a powerful, fluent API for making HTTP requests with full TypeScript support. It combines route generation with HTTP client functionality.
+
+```javascript
+import builder from '@izzyjs/route/builder'
+
+// Basic usage - get route information
+const route = builder('users.show', { id: '123' })
+  .withQs({ page: '1' })
+  .withHash('profile')
+  .withPrefix('/api/v1')
+  .route()
+
+console.log(route.path) // "/api/v1/users/123?page=1#profile"
+console.log(route.url) // "https://example.com/api/v1/users/123?page=1#profile"
+```
+
+#### Making HTTP Requests
+
+```javascript
+import builder from '@izzyjs/route/builder'
+
+// GET request
+const result = await builder('users.show', { id: '123' })
+  .withQs({ include: 'profile' })
+  .request()
+  .successType<UserResponse>()
+  .failedType<ApiError>()
+  .run()
+
+if (result.data) {
+  console.log('User:', result.data)
+} else {
+  console.log('Error:', result.error)
+}
+
+// POST request with data
+const createResult = await builder('users.store')
+  .request()
+  .successType<User>()
+  .failedType<ValidationError>()
+  .withData({ name: 'John Doe', email: 'john@example.com' })
+  .run()
+
+// PUT request
+const updateResult = await builder('users.update', { id: '123' })
+  .request()
+  .withData({ name: 'Jane Doe' })
+  .run()
+
+// DELETE request
+const deleteResult = await builder('users.destroy', { id: '123' })
+  .request()
+  .run()
+```
+
+#### Advanced Builder Features
+
+```javascript
+// Chain multiple modifiers
+const result = await builder('posts.index')
+  .withQs({ category: 'tech', page: '2' })
+  .withHash('latest')
+  .withPrefix('/api/v1')
+  .request({
+    headers: { 'Authorization': 'Bearer token' },
+    timeout: 5000
+  })
+  .successType<PostsResponse>()
+  .failedType<ApiError>()
+  .run()
+
+// Type-safe request data
+interface CreateUserData {
+  name: string
+  email: string
+}
+
+interface UserResponse {
+  id: string
+  name: string
+  email: string
+}
+
+const result = await builder('users.store')
+  .request()
+  .successType<UserResponse>()
+  .failedType<ValidationError>()
+  .withData<CreateUserData>({
+    name: 'John Doe',
+    email: 'john@example.com'
+  })
+  .run()
+```
+
+#### Builder Methods
+
+- **`withQs(qs)`** - Add query parameters
+- **`withHash(hash)`** - Add hash fragment
+- **`withPrefix(prefix)`** - Add route prefix
+- **`route()`** - Get the Route instance
+- **`request(config?)`** - Create RequestBuilder for HTTP requests
+- **`successType<T>()`** - Define success response type
+- **`failedType<T>()`** - Define error response type
+- **`withData<T>(data)`** - Add request data (POST/PUT/PATCH)
+- **`run()`** - Execute the HTTP request
+
+#### Automatic CSRF Protection
+
+The builder automatically includes CSRF tokens from cookies:
+
+```javascript
+// CSRF token is automatically added from XSRF-TOKEN cookie
+const result = await builder('users.store').request().withData({ name: 'John' }).run()
+```
+
+#### HTTP Client Configuration
+
+The builder uses a built-in HTTP client with automatic CSRF protection and error handling. You can configure it per request:
+
+```javascript
+// Request configuration options
+const result = await builder('users.show', { id: '123' })
+  .request({
+    headers: { Authorization: 'Bearer token' },
+    timeout: 5000,
+    credentials: 'include',
+  })
+  .run()
+```
+
+**Available configuration options:**
+
+- **`headers`** - Custom headers for the request
+- **`timeout`** - Request timeout in milliseconds (default: 30000)
+- **`credentials`** - Credentials policy (default: 'same-origin')
+
+**Automatic Content-Type Detection:**
+
+The HTTP client automatically detects the appropriate `Content-Type` header based on the request body:
+
+```javascript
+// FormData - no Content-Type set (browser handles boundary)
+const formData = new FormData()
+formData.append('file', fileInput.files[0])
+await builder('upload').request().withData(formData).run()
+
+// File - uses file.type or 'application/octet-stream'
+const file = new File(['content'], 'test.txt', { type: 'text/plain' })
+await builder('upload').request().withData(file).run()
+
+// Blob - uses blob.type or 'application/octet-stream'
+const blob = new Blob(['content'], { type: 'application/json' })
+await builder('upload').request().withData(blob).run()
+
+// ArrayBuffer - 'application/octet-stream'
+const buffer = new ArrayBuffer(8)
+await builder('upload').request().withData(buffer).run()
+
+// String - 'text/plain' or 'application/json' (if valid JSON)
+await builder('api').request().withData('{"key": "value"}').run() // JSON
+await builder('api').request().withData('plain text').run() // text/plain
+
+// Object - 'application/json' (automatically stringified)
+await builder('api').request().withData({ name: 'John' }).run()
+```
+
+#### Global Error Handling
+
+The builder includes global error handling for common HTTP status codes:
+
+```javascript
+// 401 errors are automatically handled
+// CSRF tokens are automatically added from cookies
+const result = await builder('protected.route').request().run()
+// If 401, will log warning and reject promise
+```
+
+These features enable seamless integration of AdonisJs routing within your JavaScript applications, enhancing flexibility and maintainability. By leveraging `route()` and `builder`, you can easily manage and navigate your application routes with ease, ensuring a smooth user experience.
 
 ## Contributing
 
