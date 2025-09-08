@@ -77,11 +77,22 @@ export class Route extends String {
    */
   readonly qs: URLSearchParams
 
+  /**
+   * The hash fragment
+   * @example
+   * ```ts
+   * const route = Route.new('user.show', { id: '1' }, {}, '', 'contato')
+   * console.log(route.hash) // contato
+   * ```
+   */
+  readonly hash: string
+
   private constructor(
     routeName?: string,
     params?: Record<string, string>,
     qs: Record<string, any> = {},
-    prefix = ''
+    prefix = '',
+    hash = ''
   ) {
     const { routes } = Route.izzy()
 
@@ -111,6 +122,10 @@ export class Route extends String {
       pattern += `?${searchParams.toString()}`
     }
 
+    if (hash) {
+      pattern += `#${hash}`
+    }
+
     if (prefix) {
       pattern = prefix + pattern
     }
@@ -123,6 +138,7 @@ export class Route extends String {
     this.params = exist.params
     this.pattern = exist.path
     this.qs = searchParams
+    this.hash = hash
 
     // Generate complete URL with protocol and domain if baseUrl is configured
     this.url = this.generateCompleteUrl(pattern, exist.domain)
@@ -141,7 +157,11 @@ export class Route extends String {
         // Otherwise use the baseUrl.host
         const host = routeDomain && routeDomain !== 'root' ? routeDomain : baseUrl.host
 
-        baseUrl.pathname = path
+        // Parse the path to separate pathname, search, and hash
+        const url = new URL(path, 'http://example.com')
+        baseUrl.pathname = url.pathname
+        baseUrl.search = url.search
+        baseUrl.hash = url.hash
         baseUrl.host = host
 
         return baseUrl.toString()
@@ -181,6 +201,22 @@ export class Route extends String {
    * @param params The route parameters
    * @param qs The query string
    * @param prefix The route prefix
+   * @param hash The hash fragment
+   */
+  static new(
+    routeName: unknown,
+    params: unknown,
+    qs?: unknown,
+    prefix?: string,
+    hash?: string
+  ): Route
+
+  /**
+   * Create a new `Route` instance
+   * @param routeName The route name
+   * @param params The route parameters
+   * @param qs The query string
+   * @param prefix The route prefix
    */
   static new(routeName: unknown, params: unknown, qs?: unknown, prefix?: string): Route
 
@@ -195,7 +231,13 @@ export class Route extends String {
    */
   static new(): Routes
 
-  static new(routeName?: unknown, params?: unknown, qs?: unknown, prefix?: string): Route | Routes {
+  static new(
+    routeName?: unknown,
+    params?: unknown,
+    qs?: unknown,
+    prefix?: string,
+    hash?: string
+  ): Route | Routes {
     if (!routeName) {
       return new Routes()
     }
@@ -204,7 +246,8 @@ export class Route extends String {
       routeName as string,
       params as Record<string, string>,
       qs as Record<string, any>,
-      prefix
+      prefix,
+      hash
     )
   }
 
