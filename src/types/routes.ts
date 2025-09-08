@@ -34,4 +34,4 @@ export type Params<Name extends ExtractName> = {
   >['params'][number]]: string
 }
 
-export type ExcludeName = Exclude<RouteWithName, RouteWithParams>
+export type ExcludeName = Exclude<RouteWithName, RouteWithParams>['name']
