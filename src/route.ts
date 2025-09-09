@@ -35,7 +35,7 @@ export class Route extends String {
    * console.log(route.params) // ['id']
    * ```
    */
-  readonly params: string[] | undefined
+  readonly params: { required?: string[]; optional?: string[] } | undefined
 
   /**
    * The route name as a string
@@ -106,15 +106,42 @@ export class Route extends String {
 
     let pattern: string
 
-    if ('params' in exist && exist.params) {
-      if (!params) {
-        throw new Error(
-          `Route "${routeName}" requires parameters: ${exist.params.map((p: string) => `"${p}"`).join(', ')}`
+    if (exist.params) {
+      const requiredParams = exist.params.required || []
+      const optionalParams = exist.params.optional || []
+
+      // Check if required parameters are provided
+      if (requiredParams.length > 0) {
+        if (!params) {
+          throw new Error(
+            `Route "${routeName}" requires parameters: ${requiredParams.map((p: string) => `"${p}"`).join(', ')}`
+          )
+        }
+
+        // Check if all required parameters are provided
+        const missingParams = requiredParams.filter(
+          (param) => !(param in (params as Record<string, string>))
         )
+        if (missingParams.length > 0) {
+          throw new Error(
+            `Missing required parameters for route "${routeName}": ${missingParams.map((p) => `"${p}"`).join(', ')}`
+          )
+        }
       }
 
-      pattern = Route.replaceRouteParams(exist.path, params as Record<string, string>)
+      // Replace parameters in the path
+      if (params && Object.keys(params).length > 0) {
+        pattern = Route.replaceRouteParams(exist.path, params as Record<string, string>)
+      } else if (optionalParams.length > 0) {
+        // Remove optional parameters from the path if no params provided
+        pattern = exist.path.replace(/:\w+\?/g, '')
+        // Clean up double slashes and trailing slashes
+        pattern = pattern.replace(/\/+/g, '/').replace(/\/$/, '') || '/'
+      } else {
+        pattern = exist.path
+      }
     } else {
+      // Route has no parameters
       pattern = exist.path
     }
 
@@ -189,10 +216,20 @@ export class Route extends String {
   }
 
   static replaceRouteParams(routePath: string, params: Record<string, string>) {
-    return Object.entries(params).reduce(
-      (acc, [key, value]) => acc.replace(`:${key}`, value),
-      routePath
-    )
+    let result = routePath
+
+    // First, replace all provided parameters
+    for (const [key, value] of Object.entries(params)) {
+      result = result.replace(new RegExp(`:${key}\\??`, 'g'), value)
+    }
+
+    // Then, remove any remaining optional parameters that weren't provided
+    result = result.replace(/:\w+\?/g, '')
+
+    // Clean up double slashes and trailing slashes
+    result = result.replace(/\/+/g, '/').replace(/\/$/, '') || '/'
+
+    return result
   }
 
   /**
@@ -426,6 +463,12 @@ export class Routes {
     })
 
     if (route && route.params) {
+      const allParams = [...(route.params.required || []), ...(route.params.optional || [])]
+
+      if (allParams.length === 0) {
+        return {}
+      }
+
       const regex = new RegExp(
         route.path
           .split('/')
@@ -439,7 +482,7 @@ export class Routes {
         return {}
       }
 
-      return route.params.reduce(
+      return allParams.reduce(
         (acc, param, index) => ({
           ...acc,
           [param]: values[index + 1],
