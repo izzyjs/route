@@ -59,15 +59,49 @@ export async function namedRoutes(app: ApplicationService) {
         continue
       }
 
-      const params = route.pattern.match(/:\w+/g)?.map((param) => param.slice(1))
+      const allParams = route.pattern.match(/:\w+\??/g)?.map((param) => param.slice(1))
 
-      acc.push({
-        name: route.name,
-        path: route.pattern,
-        params: params ?? [],
-        method: route.methods[0].toLowerCase() as Method,
-        domain,
-      })
+      if (allParams) {
+        const requiredParams: string[] = []
+        const optionalParams: string[] = []
+
+        // Check for optional parameters (ending with ?)
+        const optionalParamPattern = /:\w+\?/g
+        const optionalMatches = route.pattern.match(optionalParamPattern)
+
+        if (optionalMatches) {
+          optionalParams.push(...optionalMatches.map((param) => param.slice(1, -1))) // Remove : and ?
+        }
+
+        // Check for required parameters (not ending with ?)
+        const requiredParamPattern = /:\w+(?!\?)/g
+        const requiredMatches = route.pattern.match(requiredParamPattern)
+
+        if (requiredMatches) {
+          requiredParams.push(...requiredMatches.map((param) => param.slice(1))) // Remove :
+        }
+
+        acc.push({
+          name: route.name,
+          path: route.pattern,
+          params:
+            requiredParams.length > 0 || optionalParams.length > 0
+              ? {
+                  required: requiredParams.length > 0 ? requiredParams : undefined,
+                  optional: optionalParams.length > 0 ? optionalParams : undefined,
+                }
+              : undefined,
+          method: route.methods[0].toLowerCase() as Method,
+          domain,
+        })
+      } else {
+        acc.push({
+          name: route.name,
+          path: route.pattern,
+          method: route.methods[0].toLowerCase() as Method,
+          domain,
+        })
+      }
     }
 
     return acc
@@ -112,13 +146,21 @@ export function javascriptContent(bucket: SerializedRoute[], routeConfig?: Confi
 
 export function definitionContent(bucket: SerializedRoute[], routeConfig?: Config['routes']) {
   const makeRouteType = ({ method, path, name, params, domain }: SerializedRoute) => {
-    if (params && params.length > 0) {
+    const hasRequiredParams = params?.required && params.required.length > 0
+    const hasOptionalParams = params?.optional && params.optional.length > 0
+
+    if (hasRequiredParams || hasOptionalParams) {
       const routeType = [
         '\t{',
         `\t\treadonly name: '${name}';`,
         `\t\treadonly path: '${path}';`,
         `\t\treadonly method: '${method}';`,
-        `\t\treadonly params: readonly ['${params.join("','")}'];`,
+        ...(hasRequiredParams
+          ? [`\t\treadonly params: readonly ['${params!.required!.join("','")}'];`]
+          : []),
+        ...(hasOptionalParams
+          ? [`\t\treadonly optionalParams: readonly ['${params!.optional!.join("','")}'];`]
+          : []),
         `\t\treadonly domain: '${domain}';`,
         '\t}',
       ]
@@ -146,7 +188,7 @@ export function definitionContent(bucket: SerializedRoute[], routeConfig?: Confi
     'export type Routes = typeof routes;',
     'export type Route = Routes[number];',
     'export type RouteWithName = Extract<Route, { name: string }>;',
-    'export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }>;',
+    'export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;',
     "export type RouteName = Exclude<RouteWithName['name'], ''>;",
   ]
 
