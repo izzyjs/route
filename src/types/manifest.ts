@@ -14,7 +14,10 @@ export type Method = (typeof methods)[keyof typeof methods]
 export type SerializedRoute = {
   name: string
   path: string
-  params?: string[]
+  params?: {
+    required?: string[]
+    optional?: string[]
+  }
   domain: 'root' | string
   method: Method
 }
