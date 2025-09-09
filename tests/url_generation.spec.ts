@@ -16,7 +16,7 @@ test.group('URL Generation', () => {
           name: 'users.show',
           path: '/users/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
       ],
@@ -189,7 +189,7 @@ test.group('URL Generation', () => {
           name: 'users.show',
           path: '/users/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
       ],
@@ -308,7 +308,7 @@ test.group('URL Generation', () => {
           name: 'users.show',
           path: '/users/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
       ],
@@ -405,5 +405,234 @@ test.group('URL Generation', () => {
     assert.equal(homeRoute.path, '/')
     assert.equal(homeRoute.url, 'https://example.com/')
     assert.equal(homeRoute.hash, '')
+  })
+
+  test('should handle routes with optional parameters - with params provided', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.show',
+          path: '/posts/:id/:slug?',
+          method: 'get',
+          params: {
+            required: ['id'],
+            optional: ['slug'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    const postRoute = Route.new('posts.show', { id: '123', slug: 'my-post-title' })
+
+    assert.equal(postRoute.path, '/posts/123/my-post-title')
+    assert.equal(postRoute.url, 'https://example.com/posts/123/my-post-title')
+  })
+
+  test('should handle routes with optional parameters - without optional params', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.show',
+          path: '/posts/:id/:slug?',
+          method: 'get',
+          params: {
+            required: ['id'],
+            optional: ['slug'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    const postRoute = Route.new('posts.show', { id: '123' })
+
+    assert.equal(postRoute.path, '/posts/123')
+    assert.equal(postRoute.url, 'https://example.com/posts/123')
+  })
+
+  test('should handle routes with only optional parameters - with params provided', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.index',
+          path: '/posts/:category?',
+          method: 'get',
+          params: {
+            optional: ['category'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    const postsRoute = Route.new('posts.index', { category: 'tech' })
+
+    assert.equal(postsRoute.path, '/posts/tech')
+    assert.equal(postsRoute.url, 'https://example.com/posts/tech')
+  })
+
+  test('should handle routes with only optional parameters - without params', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.index',
+          path: '/posts/:category?',
+          method: 'get',
+          params: {
+            optional: ['category'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    const postsRoute = Route.new('posts.index')
+
+    assert.equal(postsRoute.path, '/posts')
+    assert.equal(postsRoute.url, 'https://example.com/posts')
+  })
+
+  test('should handle routes with multiple optional parameters', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.filter',
+          path: '/posts/:category?/:tag?',
+          method: 'get',
+          params: {
+            optional: ['category', 'tag'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    // With all optional params
+    const postsRouteAll = Route.new('posts.filter', { category: 'tech', tag: 'javascript' })
+    assert.equal(postsRouteAll.path, '/posts/tech/javascript')
+    assert.equal(postsRouteAll.url, 'https://example.com/posts/tech/javascript')
+
+    // With only first optional param
+    const postsRouteFirst = Route.new('posts.filter', { category: 'tech' })
+    assert.equal(postsRouteFirst.path, '/posts/tech')
+    assert.equal(postsRouteFirst.url, 'https://example.com/posts/tech')
+
+    // With only second optional param
+    const postsRouteSecond = Route.new('posts.filter', { tag: 'javascript' })
+    assert.equal(postsRouteSecond.path, '/posts/javascript')
+    assert.equal(postsRouteSecond.url, 'https://example.com/posts/javascript')
+
+    // Without any optional params
+    const postsRouteNone = Route.new('posts.filter')
+    assert.equal(postsRouteNone.path, '/posts')
+    assert.equal(postsRouteNone.url, 'https://example.com/posts')
+  })
+
+  test('should handle routes with mixed required and optional parameters', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'users.posts.show',
+          path: '/users/:userId/posts/:id/:slug?',
+          method: 'get',
+          params: {
+            required: ['userId', 'id'],
+            optional: ['slug'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    // With all params including optional
+    const postRouteAll = Route.new('users.posts.show', {
+      userId: '123',
+      id: '456',
+      slug: 'my-post-title',
+    })
+    assert.equal(postRouteAll.path, '/users/123/posts/456/my-post-title')
+    assert.equal(postRouteAll.url, 'https://example.com/users/123/posts/456/my-post-title')
+
+    // With only required params
+    const postRouteRequired = Route.new('users.posts.show', {
+      userId: '123',
+      id: '456',
+    })
+    assert.equal(postRouteRequired.path, '/users/123/posts/456')
+    assert.equal(postRouteRequired.url, 'https://example.com/users/123/posts/456')
+  })
+
+  test('should throw error when required parameters are missing for mixed params', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'users.posts.show',
+          path: '/users/:userId/posts/:id/:slug?',
+          method: 'get',
+          params: {
+            required: ['userId', 'id'],
+            optional: ['slug'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    // Missing required userId
+    assert.throws(
+      () => Route.new('users.posts.show', { id: '456' }),
+      'Missing required parameters for route "users.posts.show": "userId"'
+    )
+
+    // Missing required id
+    assert.throws(
+      () => Route.new('users.posts.show', { userId: '123' }),
+      'Missing required parameters for route "users.posts.show": "id"'
+    )
+
+    // Missing all required params
+    assert.throws(
+      () => Route.new('users.posts.show'),
+      'Route "users.posts.show" requires parameters: "userId", "id"'
+    )
   })
 })

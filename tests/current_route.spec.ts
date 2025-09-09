@@ -22,7 +22,7 @@ test.group('Routes.current', () => {
           name: 'users.show',
           path: '/users/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
       ],
@@ -54,7 +54,7 @@ test.group('Routes.current', () => {
           name: 'users.show',
           path: '/users/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
       ],
@@ -123,14 +123,14 @@ test.group('Routes.current', () => {
           name: 'users.show',
           path: '/users/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
         {
           name: 'users.edit',
           path: '/users/:id/edit',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
         {
@@ -171,7 +171,7 @@ test.group('Routes.current', () => {
           name: 'admin.users.show',
           path: '/admin/users/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
         {
@@ -259,7 +259,7 @@ test.group('Routes.current', () => {
           name: 'posts.comments.show',
           path: '/posts/:postId/comments/:commentId',
           method: 'get',
-          params: ['postId', 'commentId'],
+          params: { required: ['postId', 'commentId'] },
           domain: 'root',
         },
       ],
@@ -355,14 +355,14 @@ test.group('Routes.current', () => {
           name: 'user-profile.show',
           path: '/user-profile/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
         {
           name: 'user_profile.show',
           path: '/user_profile/:id',
           method: 'get',
-          params: ['id'],
+          params: { required: ['id'] },
           domain: 'root',
         },
       ],
@@ -383,14 +383,14 @@ test.group('Routes.current', () => {
           name: 'admin.users.profile.edit',
           path: '/admin/users/:userId/profile/edit',
           method: 'get',
-          params: ['userId'],
+          params: { required: ['userId'] },
           domain: 'root',
         },
         {
           name: 'admin.users.profile.show',
           path: '/admin/users/:userId/profile',
           method: 'get',
-          params: ['userId'],
+          params: { required: ['userId'] },
           domain: 'root',
         },
       ],
@@ -409,5 +409,160 @@ test.group('Routes.current', () => {
     // Test non-matching patterns
     assert.isFalse(routes.current('admin.users.profile.show', { userId: '123' }))
     assert.isFalse(routes.current('admin.users.profile.edit', { userId: '456' }))
+  })
+
+  test('should handle routes with optional parameters in current route matching', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.show',
+          path: '/posts/:id/:slug?',
+          method: 'get',
+          params: {
+            required: ['id'],
+            optional: ['slug'],
+          },
+          domain: 'root',
+        },
+        {
+          name: 'posts.index',
+          path: '/posts/:category?',
+          method: 'get',
+          params: {
+            optional: ['category'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/posts/123',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    // Should match with only required params (current route is /posts/123)
+    assert.isTrue(Routes.current('posts.show', { id: '123' }))
+
+    // Should not match with wrong required param
+    assert.isFalse(Routes.current('posts.show', { id: '456' }))
+
+    // Should not match with wrong optional param
+    assert.isFalse(Routes.current('posts.show', { id: '123', slug: 'wrong-slug' }))
+  })
+
+  test('should handle routes with only optional parameters in current route matching', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.index',
+          path: '/posts/:category?',
+          method: 'get',
+          params: {
+            optional: ['category'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/posts',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    // Should match without any params (current route is /posts)
+    assert.isTrue(Routes.current('posts.index'))
+
+    // Should not match with wrong optional param
+    assert.isFalse(Routes.current('posts.index', { category: 'wrong-category' }))
+  })
+
+  test('should handle routes with multiple optional parameters in current route matching', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'posts.filter',
+          path: '/posts/:category?/:tag?',
+          method: 'get',
+          params: {
+            optional: ['category', 'tag'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/posts',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    // Should match without any optional params (current route is /posts)
+    assert.isTrue(Routes.current('posts.filter'))
+
+    // Should not match with wrong params
+    assert.isFalse(Routes.current('posts.filter', { category: 'wrong-category' }))
+    assert.isFalse(Routes.current('posts.filter', { category: 'tech', tag: 'wrong-tag' }))
+  })
+
+  test('should handle mixed required and optional parameters in current route matching', async ({
+    assert,
+  }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'users.posts.show',
+          path: '/users/:userId/posts/:id/:slug?',
+          method: 'get',
+          params: {
+            required: ['userId', 'id'],
+            optional: ['slug'],
+          },
+          domain: 'root',
+        },
+      ],
+      current: '/users/123/posts/456',
+      config: {
+        baseUrl: 'https://example.com',
+      },
+    }
+
+    // Should match with only required params (current route is /users/123/posts/456)
+    assert.isTrue(
+      Routes.current('users.posts.show', {
+        userId: '123',
+        id: '456',
+      })
+    )
+
+    // Should not match with missing required params
+    assert.throws(
+      () =>
+        Routes.current('users.posts.show', {
+          userId: '123',
+        }),
+      'Missing required parameters for route "users.posts.show": "id"'
+    )
+
+    assert.throws(
+      () =>
+        Routes.current('users.posts.show', {
+          id: '456',
+        }),
+      'Missing required parameters for route "users.posts.show": "userId"'
+    )
+
+    // Should not match with wrong params
+    assert.isFalse(
+      Routes.current('users.posts.show', {
+        userId: '123',
+        id: '456',
+        slug: 'wrong-slug',
+      })
+    )
   })
 })

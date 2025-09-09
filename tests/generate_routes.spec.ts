@@ -19,7 +19,7 @@ test.group('definitionContent', () => {
         name: 'user',
         path: '/users/:id',
         method: 'get',
-        params: ['id'],
+        params: { required: ['id'] },
         domain: 'root',
       },
     ] as SerializedRoute[]
@@ -45,7 +45,7 @@ export declare const routes: readonly [
 export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }>;
+export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
 export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const generatedDefinitionContent = definitionContent(bucket)
@@ -76,7 +76,7 @@ export declare const routes: readonly [
 export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }>;
+export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
 export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const generatedDefinitionContent = definitionContent(bucket)
@@ -98,7 +98,7 @@ test.group('javascriptContent', () => {
         name: 'user',
         path: '/users/:id',
         method: 'get',
-        params: ['id'],
+        params: { required: ['id'] },
         domain: 'root',
       },
     ] as SerializedRoute[]
@@ -118,7 +118,125 @@ export const routes = [
 		"name": "user",
 		"path": "/users/:id",
 		"method": "get",
-		"params": ["id"],
+		"params": {
+			"required": ["id"]
+		},
+		"domain": "root"
+	}
+];`
+
+    const generatedJavascriptContent = javascriptContent(bucket)
+
+    assert.equal(cs(generatedJavascriptContent), cs(expectedJavascriptContent))
+  })
+
+  test('should generate definition content correctly with optional parameters', async ({
+    assert,
+  }) => {
+    const bucket = [
+      {
+        name: 'posts.show',
+        path: '/posts/:id/:slug?',
+        method: 'get',
+        params: {
+          required: ['id'],
+          optional: ['slug'],
+        },
+        domain: 'root',
+      },
+    ] as SerializedRoute[]
+
+    const expectedDefinitionContent = `// Generated automatically by @izzyjs/route
+// Do not modify this file
+
+export declare const routes: readonly [
+  {
+    readonly name: 'posts.show';
+    readonly path: '/posts/:id/:slug?';
+    readonly method: 'get';
+    readonly params: readonly ['id'];
+    readonly optionalParams: readonly ['slug'];
+    readonly domain: 'root';
+  }
+];
+export type Routes = typeof routes;
+export type Route = Routes[number];
+export type RouteWithName = Extract<Route, { name: string }>;
+export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
+export type RouteName = Exclude<RouteWithName['name'], ''>;`
+
+    const generatedDefinitionContent = definitionContent(bucket)
+
+    assert.equal(cs(generatedDefinitionContent), cs(expectedDefinitionContent))
+  })
+
+  test('should generate definition content correctly with only optional parameters', async ({
+    assert,
+  }) => {
+    const bucket = [
+      {
+        name: 'posts.index',
+        path: '/posts/:category?',
+        method: 'get',
+        params: {
+          optional: ['category'],
+        },
+        domain: 'root',
+      },
+    ] as SerializedRoute[]
+
+    const expectedDefinitionContent = `// Generated automatically by @izzyjs/route
+// Do not modify this file
+
+export declare const routes: readonly [
+  {
+    readonly name: 'posts.index';
+    readonly path: '/posts/:category?';
+    readonly method: 'get';
+    readonly optionalParams: readonly ['category'];
+    readonly domain: 'root';
+  }
+];
+export type Routes = typeof routes;
+export type Route = Routes[number];
+export type RouteWithName = Extract<Route, { name: string }>;
+export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
+export type RouteName = Exclude<RouteWithName['name'], ''>;`
+
+    const generatedDefinitionContent = definitionContent(bucket)
+
+    assert.equal(cs(generatedDefinitionContent), cs(expectedDefinitionContent))
+  })
+
+  test('should generate javascript content correctly with optional parameters', async ({
+    assert,
+  }) => {
+    const bucket = [
+      {
+        name: 'posts.show',
+        path: '/posts/:id/:slug?',
+        method: 'get',
+        params: {
+          required: ['id'],
+          optional: ['slug'],
+        },
+        domain: 'root',
+      },
+    ] as SerializedRoute[]
+
+    const expectedJavascriptContent = `/* eslint-disable prettier/prettier */
+// Generated automatically by named routes hook
+/* DO NOT EDIT THIS FILE DIRECTLY */
+
+export const routes = [
+	{
+		"name": "posts.show",
+		"path": "/posts/:id/:slug?",
+		"method": "get",
+		"params": {
+			"required": ["id"],
+			"optional": ["slug"]
+		},
 		"domain": "root"
 	}
 ];`
