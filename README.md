@@ -9,7 +9,7 @@
 
 **_Use your AdonisJs routes in JavaScript with advanced HTTP client capabilities._**
 
-This package provides a JavaScript `route()` function and a powerful `builder` for generating URLs and making HTTP requests to named routes defined in an AdonisJs application. Features include hash fragments, query parameters, TypeScript support, and automatic CSRF protection.
+This package provides a JavaScript `route()` function and a powerful `builder` for generating URLs and making HTTP requests to named routes defined in an AdonisJs application. Features include hash fragments, query parameters, optional parameters, TypeScript support, and automatic CSRF protection.
 
 ## Key Features
 
@@ -23,6 +23,7 @@ This package provides a JavaScript `route()` function and a powerful `builder` f
 - 🔄 **HTTP Methods** - Support for GET, POST, PUT, DELETE, PATCH
 - ⚡ **Error Handling** - Global error handling and response management
 - 🎨 **Route Filtering** - Filter routes by patterns or groups
+- 🔀 **Optional Parameters** - Support for both required and optional route parameters
 
 ## Quick Start
 
@@ -32,10 +33,18 @@ This package provides a JavaScript `route()` function and a powerful `builder` f
 import { route } from '@izzyjs/route/client'
 import builder from '@izzyjs/route/builder'
 
-// Generate URLs
+// Generate URLs with required parameters
 const userUrl = route('users.show', { params: { id: '123' } })
 console.log(userUrl.path) // "/users/123"
 console.log(userUrl.url) // "https://example.com/users/123" (requires baseUrl config)
+
+// Generate URLs with optional parameters
+const postsUrl = route('posts.index', { params: { category: 'tech' } })
+console.log(postsUrl.path) // "/posts/tech"
+
+// Optional parameters can be omitted
+const allPostsUrl = route('posts.index')
+console.log(allPostsUrl.path) // "/posts"
 
 // With hash fragments
 const homeWithHash = route('home', { hash: 'contact' })
@@ -341,6 +350,76 @@ route.new('users.show', { id: '1' }, { page: '2' }, '/api', 'profile')
 // Access builder for HTTP requests
 route.builder('users.show', { id: '1' }).withQs({ page: '2' }).request()
 ```
+
+#### Route Parameters (Required and Optional)
+
+The `route()` function supports both required and optional parameters. The system automatically detects parameter types based on your AdonisJs route definitions:
+
+**Required Parameters:**
+
+```javascript
+// AdonisJs route: router.get('/users/:id', controller).as('users.show')
+const userUrl = route('users.show', { params: { id: '123' } })
+console.log(userUrl.path) // "/users/123"
+```
+
+**Optional Parameters:**
+
+```javascript
+// AdonisJs route: router.get('/posts/:category?', controller).as('posts.index')
+const postsUrl = route('posts.index', { params: { category: 'tech' } })
+console.log(postsUrl.path) // "/posts/tech"
+
+// Optional parameter can be omitted
+const allPostsUrl = route('posts.index')
+console.log(allPostsUrl.path) // "/posts"
+```
+
+**Mixed Parameters:**
+
+```javascript
+// AdonisJs route: router.get('/posts/:id/:slug?', controller).as('posts.show')
+const postUrl = route('posts.show', {
+  params: { id: '123', slug: 'my-awesome-post' },
+})
+console.log(postUrl.path) // "/posts/123/my-awesome-post"
+
+// Optional parameter can be omitted
+const postWithoutSlug = route('posts.show', { params: { id: '123' } })
+console.log(postWithoutSlug.path) // "/posts/123"
+```
+
+**TypeScript Support:**
+The generated types automatically provide type safety for both required and optional parameters:
+
+```typescript
+// TypeScript will enforce required parameters
+const userUrl = route('users.show', { params: { id: '123' } }) // ✅ Valid
+const userUrlError = route('users.show') // ❌ TypeScript error: missing required parameter
+
+// Optional parameters are... optional!
+const postsUrl = route('posts.index', { params: { category: 'tech' } }) // ✅ Valid
+const allPostsUrl = route('posts.index') // ✅ Also valid - optional parameter omitted
+```
+
+**Parameter Structure:**
+The system generates a structured parameter object with separate arrays for required and optional parameters:
+
+```typescript
+// Generated type structure
+type RouteWithParams = {
+  readonly name: 'posts.show'
+  readonly path: '/posts/:id/:slug?'
+  readonly method: 'get'
+  readonly params: {
+    readonly required: readonly ['id']
+    readonly optional: readonly ['slug']
+  }
+  readonly domain: 'root'
+}
+```
+
+This structure allows the `Params<Name>` type to work correctly, providing type safety for both required and optional parameters in your route definitions.
 
 #### Hash Fragments
 
