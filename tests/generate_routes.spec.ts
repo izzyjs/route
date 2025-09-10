@@ -38,14 +38,16 @@ export declare const routes: readonly [
     readonly name: 'user';
     readonly path: '/users/:id';
     readonly method: 'get';
-    readonly params: readonly ['id'];
+    readonly params: {
+      readonly required: readonly ['id'];
+    };
     readonly domain: 'root';
   }
 ];
 export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
+export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
 export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const generatedDefinitionContent = definitionContent(bucket)
@@ -76,7 +78,7 @@ export declare const routes: readonly [
 export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
+export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
 export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const generatedDefinitionContent = definitionContent(bucket)
@@ -154,15 +156,17 @@ export declare const routes: readonly [
     readonly name: 'posts.show';
     readonly path: '/posts/:id/:slug?';
     readonly method: 'get';
-    readonly params: readonly ['id'];
-    readonly optionalParams: readonly ['slug'];
+    readonly params: {
+      readonly required: readonly ['id'];
+      readonly optional: readonly ['slug'];
+    };
     readonly domain: 'root';
   }
 ];
 export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
+export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
 export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const generatedDefinitionContent = definitionContent(bucket)
@@ -193,14 +197,16 @@ export declare const routes: readonly [
     readonly name: 'posts.index';
     readonly path: '/posts/:category?';
     readonly method: 'get';
-    readonly optionalParams: readonly ['category'];
+    readonly params: {
+      readonly optional: readonly ['category'];
+    };
     readonly domain: 'root';
   }
 ];
 export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;
+export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
 export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const generatedDefinitionContent = definitionContent(bucket)
