@@ -59,26 +59,21 @@ export async function namedRoutes(app: ApplicationService) {
         continue
       }
 
-      const allParams = route.pattern.match(/:\w+\??/g)?.map((param) => param.slice(1))
+      const allParams = route.pattern.match(/:\w+\??/g)
 
       if (allParams) {
         const requiredParams: string[] = []
         const optionalParams: string[] = []
 
-        // Check for optional parameters (ending with ?)
-        const optionalParamPattern = /:\w+\?/g
-        const optionalMatches = route.pattern.match(optionalParamPattern)
-
-        if (optionalMatches) {
-          optionalParams.push(...optionalMatches.map((param) => param.slice(1, -1))) // Remove : and ?
-        }
-
-        // Check for required parameters (not ending with ?)
-        const requiredParamPattern = /:\w+(?!\?)/g
-        const requiredMatches = route.pattern.match(requiredParamPattern)
-
-        if (requiredMatches) {
-          requiredParams.push(...requiredMatches.map((param) => param.slice(1))) // Remove :
+        // Process each parameter
+        for (const param of allParams) {
+          if (param.endsWith('?')) {
+            // Optional parameter - remove : and ?
+            optionalParams.push(param.slice(1, -1))
+          } else {
+            // Required parameter - remove :
+            requiredParams.push(param.slice(1))
+          }
         }
 
         acc.push({
