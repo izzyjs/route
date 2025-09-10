@@ -155,12 +155,14 @@ export function definitionContent(bucket: SerializedRoute[], routeConfig?: Confi
         `\t\treadonly name: '${name}';`,
         `\t\treadonly path: '${path}';`,
         `\t\treadonly method: '${method}';`,
+        '\t\treadonly params: {',
         ...(hasRequiredParams
-          ? [`\t\treadonly params: readonly ['${params!.required!.join("','")}'];`]
+          ? [`\t\t\treadonly required: readonly ['${params!.required!.join("','")}'];`]
           : []),
         ...(hasOptionalParams
-          ? [`\t\treadonly optionalParams: readonly ['${params!.optional!.join("','")}'];`]
+          ? [`\t\t\treadonly optional: readonly ['${params!.optional!.join("','")}'];`]
           : []),
+        '\t\t};',
         `\t\treadonly domain: '${domain}';`,
         '\t}',
       ]
@@ -188,7 +190,7 @@ export function definitionContent(bucket: SerializedRoute[], routeConfig?: Confi
     'export type Routes = typeof routes;',
     'export type Route = Routes[number];',
     'export type RouteWithName = Extract<Route, { name: string }>;',
-    'export type RouteWithParams = Extract<Route, { params: ReadonlyArray<string>; }> | Extract<Route, { optionalParams: ReadonlyArray<string>; }>;',
+    'export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;',
     "export type RouteName = Exclude<RouteWithName['name'], ''>;",
   ]
 
