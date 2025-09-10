@@ -362,10 +362,10 @@ export class Routes {
    * route().current('/todos/*') // => false
    * ```
    */
-  current<Name extends ExcludeName['name']>(routeName: Name | string, params?: never): boolean
+  current<Name extends ExcludeName>(routeName: Name | string, params?: never): boolean
 
   current(routeName?: string, params?: unknown): RouteName | boolean {
-    return Routes.current(routeName, params as Params<ExtractName>)
+    return Routes.current(routeName as string, params as Params<ExtractName>)
   }
 
   /**
@@ -407,16 +407,13 @@ export class Routes {
    * route.current('/todos/*') // => false
    * ```
    */
-  static current<Name extends ExcludeName['name']>(
-    routeName: Name | string,
-    params?: never
-  ): boolean
+  static current<Name extends ExcludeName>(routeName: Name | string, params?: never): boolean
 
   static current(routeName?: string, params?: unknown): RouteName | boolean {
     const routes = new Routes()
 
     if (!routeName) {
-      return routes.currentRoute
+      return routes.currentRoute as RouteName
     }
 
     if (routeName.includes('*')) {
