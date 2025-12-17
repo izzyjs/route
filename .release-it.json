@@ -1,0 +1,19 @@
+{
+  "git": {
+    "commitMessage": "chore(release): ${version}",
+    "tagName": "v${version}",
+    "requireCleanWorkingDir": true,
+    "requireBranch": "main"
+  },
+  "npm": {
+    "publish": true,
+    "publishArgs": ["--access", "public"]
+  },
+  "github": {
+    "release": true
+  },
+  "hooks": {
+    "before:init": ["npm run lint", "npm test"],
+    "after:bump": "npm run build"
+  }
+}

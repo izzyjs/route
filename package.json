@@ -1,7 +1,7 @@
 {
   "name": "@izzyjs/route",
   "description": "Use your AdonisJs routes in your Inertia.js application",
-  "version": "2.1.13",
+  "version": "2.1.7",
   "engines": {
     "node": ">=20.6.0"
   },
@@ -38,7 +38,7 @@
     "prebuild": "npm run lint && npm run clean",
     "build": "tsc",
     "postbuild": "npm run copy:templates && npm run index:commands",
-    "release": "np",
+    "release": "release-it",
     "version": "npm run build",
     "prepublishOnly": "npm run build",
     "index:commands": "adonis-kit index build/commands"
@@ -52,6 +52,7 @@
     "@japa/assert": "^2.1.0",
     "@japa/expect-type": "^2.0.3",
     "@japa/runner": "^3.1.1",
+    "@release-it/conventional-changelog": "^10.0.4",
     "@swc/core": "^1.4.6",
     "@tuyau/utils": "^0.0.2",
     "@types/node": "^20.11.25",
@@ -59,8 +60,8 @@
     "copyfiles": "^2.4.1",
     "del-cli": "^5.1.0",
     "eslint": "^8.57.0",
-    "np": "^10.0.0",
     "prettier": "^3.2.5",
+    "release-it": "^19.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   },
