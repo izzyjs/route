@@ -39,7 +39,6 @@
     "build": "tsc",
     "postbuild": "npm run copy:templates && npm run index:commands",
     "release": "release-it",
-    "version": "npm run build",
     "prepublishOnly": "npm run build",
     "index:commands": "adonis-kit index build/commands"
   },
@@ -95,12 +94,6 @@
   "publishConfig": {
     "access": "public",
     "tag": "latest"
-  },
-  "np": {
-    "message": "chore(release): %s",
-    "tag": "latest",
-    "branch": "main",
-    "anyBranch": false
   },
   "c8": {
     "reporter": [
