@@ -6,7 +6,7 @@
  */
 import type { PluginFn } from '@japa/runner/types'
 import { namedRoutes } from '../generate_routes.js'
-import { ApplicationService } from '@adonisjs/core/types'
+import { type ApplicationService } from '@adonisjs/core/types'
 
 /**
  * A Japa plugin to expose the named routes to the global scope

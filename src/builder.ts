@@ -1,6 +1,6 @@
 import { HttpClient } from './http_client.js'
 import { Route } from './route.js'
-import { ExcludeName, ExtractName, Params } from './types/routes.js'
+import { type ExcludeName, type ExtractName, type Params } from './types/routes.js'
 
 // Create default client instance
 const client = new HttpClient()

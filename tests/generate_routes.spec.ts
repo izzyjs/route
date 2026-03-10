@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import { definitionContent, javascriptContent } from '../src/generate_routes.js'
-import { SerializedRoute } from '../src/types/manifest.js'
+import { type SerializedRoute } from '../src/types/manifest.js'
 
 function cs(s: string) {
   return s.replace(/ /g, '').replace(/\t/g, '').replace(/\n/g, '')

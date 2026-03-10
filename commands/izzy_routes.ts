@@ -1,6 +1,6 @@
 import { BaseCommand } from '@adonisjs/core/ace'
 import generateRoutes from '../src/generate_routes.js'
-import { CommandOptions } from '@adonisjs/core/types/ace'
+import { type CommandOptions } from '@adonisjs/core/types/ace'
 
 export default class IzzyRoutes extends BaseCommand {
   static commandName = 'izzy:routes'

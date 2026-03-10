@@ -30,9 +30,9 @@
     "clean": "del-cli build",
     "copy:templates": "copyfiles \"stubs/**/*.stub\" build",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext=.ts",
+    "lint": "eslint .",
     "format": "prettier --write .",
-    "quick:test": "node --import=./tsnode.esm.js --enable-source-maps bin/test.ts",
+    "quick:test": "tsx bin/test.ts",
     "pretest": "npm run lint",
     "test": "c8 npm run quick:test",
     "prebuild": "npm run lint && npm run clean",
@@ -43,30 +43,30 @@
     "index:commands": "adonis-kit index build/commands"
   },
   "devDependencies": {
-    "@adonisjs/assembler": "^7.2.3",
-    "@adonisjs/core": "^6.3.1",
-    "@adonisjs/eslint-config": "^1.3.0",
-    "@adonisjs/prettier-config": "^1.3.0",
-    "@adonisjs/tsconfig": "^1.3.0",
+    "@adonisjs/assembler": "^8.0.0",
+    "@adonisjs/core": "^7.0.1",
+    "@adonisjs/eslint-config": "^3.0.0",
+    "@adonisjs/prettier-config": "^1.4.5",
+    "@adonisjs/tsconfig": "^2.0.0",
     "@japa/assert": "^2.1.0",
     "@japa/expect-type": "^2.0.3",
     "@japa/runner": "^3.1.1",
+    "@poppinss/ts-exec": "^1.1.1",
     "@release-it/conventional-changelog": "^10.0.4",
-    "@swc/core": "^1.4.6",
     "@tuyau/utils": "^0.0.2",
     "@types/node": "^20.11.25",
     "c8": "^9.1.0",
     "copyfiles": "^2.4.1",
     "del-cli": "^5.1.0",
-    "eslint": "^8.57.0",
+    "eslint": "^10.0.3",
     "prettier": "^3.2.5",
     "release-it": "^19.1.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.4.2"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^6.2.0",
-    "edge.js": "^6.0.2"
+    "@adonisjs/core": "^7.0.1",
+    "edge.js": "^6.5.0"
   },
   "author": "Walaff Fernandes",
   "license": "MIT",
@@ -87,9 +87,6 @@
     "generator",
     "typescript"
   ],
-  "eslintConfig": {
-    "extends": "@adonisjs/eslint-config/package"
-  },
   "prettier": "@adonisjs/prettier-config",
   "publishConfig": {
     "access": "public",

@@ -11,7 +11,7 @@ import type { Method, SerializedRoute } from './types/manifest.js'
 import type { Config, RouteFilter } from './define_config.js'
 import { filterRoutes } from './utils/route_filter.js'
 import { detectBuildPath, getRelativeBuildPath } from './utils/path_resolver.js'
-import { ApplicationService } from '@adonisjs/core/types'
+import { type ApplicationService } from '@adonisjs/core/types'
 
 export default async function generateRoutes() {
   const app = await import('@adonisjs/core/services/app').then((m) => m.default)
