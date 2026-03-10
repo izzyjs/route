@@ -9,9 +9,7 @@
   "files": [
     "build",
     "!build/bin",
-    "!build/tests",
-    "!build/src/client/routes.d.ts",
-    "!build/src/client/routes.js"
+    "!build/tests"
   ],
   "exports": {
     ".": "./build/index.js",

@@ -26,29 +26,25 @@ test.group('definitionContent', () => {
 
     const expectedDefinitionContent = `// Generated automatically by @izzyjs/route
 // Do not modify this file
-
-export declare const routes: readonly [
-  {
-    readonly name: 'home';
-    readonly path: '/home';
-    readonly method: 'get';
-    readonly domain: 'root';
-  },
-  {
-    readonly name: 'user';
-    readonly path: '/users/:id';
-    readonly method: 'get';
-    readonly params: {
-      readonly required: readonly ['id'];
-    };
-    readonly domain: 'root';
-  }
-];
-export type Routes = typeof routes;
-export type Route = Routes[number];
-export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+declare module '@izzyjs/route/routes' {
+\tinterface RouteDefinitions {
+\t\t'home': {
+\t\t\treadonly name: 'home';
+\t\t\treadonly path: '/home';
+\t\t\treadonly method: 'get';
+\t\t\treadonly domain: 'root';
+\t\t};
+\t\t'user': {
+\t\t\treadonly name: 'user';
+\t\t\treadonly path: '/users/:id';
+\t\t\treadonly method: 'get';
+\t\t\treadonly params: {
+\t\t\t\treadonly required: readonly ['id'];
+\t\t\t};
+\t\t\treadonly domain: 'root';
+\t\t};
+\t}
+}`
 
     const generatedDefinitionContent = definitionContent(bucket)
 
@@ -67,19 +63,16 @@ export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const expectedDefinitionContent = `// Generated automatically by @izzyjs/route
 // Do not modify this file
-export declare const routes: readonly [
-\t{
-\t\treadonly name: 'home';
-\t\treadonly path: '/home';
-\t\treadonly method: 'get';
-\t\treadonly domain: 'root';
+declare module '@izzyjs/route/routes' {
+\tinterface RouteDefinitions {
+\t\t'home': {
+\t\t\treadonly name: 'home';
+\t\t\treadonly path: '/home';
+\t\t\treadonly method: 'get';
+\t\t\treadonly domain: 'root';
+\t\t};
 \t}
-];
-export type Routes = typeof routes;
-export type Route = Routes[number];
-export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+}`
 
     const generatedDefinitionContent = definitionContent(bucket)
 
@@ -150,24 +143,20 @@ export const routes = [
 
     const expectedDefinitionContent = `// Generated automatically by @izzyjs/route
 // Do not modify this file
-
-export declare const routes: readonly [
-  {
-    readonly name: 'posts.show';
-    readonly path: '/posts/:id/:slug?';
-    readonly method: 'get';
-    readonly params: {
-      readonly required: readonly ['id'];
-      readonly optional: readonly ['slug'];
-    };
-    readonly domain: 'root';
-  }
-];
-export type Routes = typeof routes;
-export type Route = Routes[number];
-export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+declare module '@izzyjs/route/routes' {
+\tinterface RouteDefinitions {
+\t\t'posts.show': {
+\t\t\treadonly name: 'posts.show';
+\t\t\treadonly path: '/posts/:id/:slug?';
+\t\t\treadonly method: 'get';
+\t\t\treadonly params: {
+\t\t\t\treadonly required: readonly ['id'];
+\t\t\t\treadonly optional: readonly ['slug'];
+\t\t\t};
+\t\t\treadonly domain: 'root';
+\t\t};
+\t}
+}`
 
     const generatedDefinitionContent = definitionContent(bucket)
 
@@ -191,23 +180,19 @@ export type RouteName = Exclude<RouteWithName['name'], ''>;`
 
     const expectedDefinitionContent = `// Generated automatically by @izzyjs/route
 // Do not modify this file
-
-export declare const routes: readonly [
-  {
-    readonly name: 'posts.index';
-    readonly path: '/posts/:category?';
-    readonly method: 'get';
-    readonly params: {
-      readonly optional: readonly ['category'];
-    };
-    readonly domain: 'root';
-  }
-];
-export type Routes = typeof routes;
-export type Route = Routes[number];
-export type RouteWithName = Extract<Route, { name: string }>;
-export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+declare module '@izzyjs/route/routes' {
+\tinterface RouteDefinitions {
+\t\t'posts.index': {
+\t\t\treadonly name: 'posts.index';
+\t\t\treadonly path: '/posts/:category?';
+\t\t\treadonly method: 'get';
+\t\t\treadonly params: {
+\t\t\t\treadonly optional: readonly ['category'];
+\t\t\t};
+\t\t\treadonly domain: 'root';
+\t\t};
+\t}
+}`
 
     const generatedDefinitionContent = definitionContent(bucket)
 

@@ -5,7 +5,7 @@
  * For the full license information, please view the LICENSE file that was distributed with this source code.
  */
 import { writeFile } from 'node:fs/promises'
-import { existsSync, unlinkSync } from 'node:fs'
+import { existsSync, mkdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Method, SerializedRoute } from './types/manifest.js'
 import type { Config, RouteFilter } from './define_config.js'
@@ -16,6 +16,7 @@ import { type ApplicationService } from '@adonisjs/core/types'
 export default async function generateRoutes() {
   const app = await import('@adonisjs/core/services/app').then((m) => m.default)
   const baseDir = await detectBuildPath()
+  mkdirSync(baseDir, { recursive: true })
   const jsFile = join(baseDir, 'routes.js')
   const dtsFile = join(baseDir, 'routes.d.ts')
 
@@ -140,60 +141,75 @@ export function javascriptContent(bucket: SerializedRoute[], routeConfig?: Confi
 }
 
 export function definitionContent(bucket: SerializedRoute[], routeConfig?: Config['routes']) {
-  const makeRouteType = ({ method, path, name, params, domain }: SerializedRoute) => {
+  const makeRouteEntry = ({ method, path, name, params, domain }: SerializedRoute) => {
     const hasRequiredParams = params?.required && params.required.length > 0
     const hasOptionalParams = params?.optional && params.optional.length > 0
 
+    const lines = [
+      `\t\t'${name}': {`,
+      `\t\t\treadonly name: '${name}';`,
+      `\t\t\treadonly path: '${path}';`,
+      `\t\t\treadonly method: '${method}';`,
+    ]
+
     if (hasRequiredParams || hasOptionalParams) {
-      const routeType = [
-        '\t{',
-        `\t\treadonly name: '${name}';`,
-        `\t\treadonly path: '${path}';`,
-        `\t\treadonly method: '${method}';`,
-        '\t\treadonly params: {',
-        ...(hasRequiredParams
-          ? [`\t\t\treadonly required: readonly ['${params!.required!.join("','")}'];`]
-          : []),
-        ...(hasOptionalParams
-          ? [`\t\t\treadonly optional: readonly ['${params!.optional!.join("','")}'];`]
-          : []),
-        '\t\t};',
-        `\t\treadonly domain: '${domain}';`,
-        '\t}',
-      ]
-      return routeType.join('\n')
+      lines.push('\t\t\treadonly params: {')
+      if (hasRequiredParams) {
+        lines.push(`\t\t\t\treadonly required: readonly ['${params!.required!.join("','")}'];`)
+      }
+      if (hasOptionalParams) {
+        lines.push(`\t\t\t\treadonly optional: readonly ['${params!.optional!.join("','")}'];`)
+      }
+      lines.push('\t\t\t};')
     }
 
-    const routeType = [
-      '\t{',
-      `\t\treadonly name: '${name}';`,
-      `\t\treadonly path: '${path}';`,
-      `\t\treadonly method: '${method}';`,
-      `\t\treadonly domain: '${domain}';`,
-      '\t}',
-    ]
-    return routeType.join('\n')
+    lines.push(`\t\t\treadonly domain: '${domain}';`)
+    lines.push('\t\t};')
+    return lines.join('\n')
   }
 
-  const output = bucket.map(makeRouteType).join(',\n')
+  const output = bucket.map(makeRouteEntry).join('\n')
 
   let content = [
-    '// Generated automatically by @izzyjs/route\n// Do not modify this file',
-    'export declare const routes: readonly [',
-    ` ${output}`,
-    '];',
-    'export type Routes = typeof routes;',
-    'export type Route = Routes[number];',
-    'export type RouteWithName = Extract<Route, { name: string }>;',
-    'export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;',
-    "export type RouteName = Exclude<RouteWithName['name'], ''>;",
+    "// Generated automatically by @izzyjs/route\n// Do not modify this file",
+    "declare module '@izzyjs/route/routes' {",
+    '\tinterface RouteDefinitions {',
+    output,
+    '\t}',
   ]
 
   // Add groups types if configured (strongly typed to selected routes)
   if (routeConfig?.groups) {
+    const makeGroupRouteEntry = ({ method, path, name, params, domain }: SerializedRoute) => {
+      const hasRequiredParams = params?.required && params.required.length > 0
+      const hasOptionalParams = params?.optional && params.optional.length > 0
+
+      const lines = [
+        '\t\t\t{',
+        `\t\t\t\treadonly name: '${name}';`,
+        `\t\t\t\treadonly path: '${path}';`,
+        `\t\t\t\treadonly method: '${method}';`,
+      ]
+
+      if (hasRequiredParams || hasOptionalParams) {
+        lines.push('\t\t\t\treadonly params: {')
+        if (hasRequiredParams) {
+          lines.push(`\t\t\t\t\treadonly required: readonly ['${params!.required!.join("','")}'];`)
+        }
+        if (hasOptionalParams) {
+          lines.push(`\t\t\t\t\treadonly optional: readonly ['${params!.optional!.join("','")}'];`)
+        }
+        lines.push('\t\t\t\t};')
+      }
+
+      lines.push(`\t\t\t\treadonly domain: '${domain}';`)
+      lines.push('\t\t\t}')
+      return lines.join('\n')
+    }
+
     content.push('')
-    content.push('// Route groups')
-    content.push('export declare const groups: {')
+    content.push('\t// Route groups')
+    content.push('\texport declare const groups: {')
 
     for (const [groupName, patterns] of Object.entries(routeConfig.groups)) {
       const groupRoutes = bucket.filter((route) => {
@@ -204,15 +220,16 @@ export function definitionContent(bucket: SerializedRoute[], routeConfig?: Confi
         })
       })
 
-      const groupOutput = groupRoutes.map(makeRouteType).join(',\n')
-      content.push(`\t${groupName}: readonly [`)
-      content.push(` ${groupOutput}`)
-      content.push(`\t];`)
+      const groupOutput = groupRoutes.map(makeGroupRouteEntry).join(',\n')
+      content.push(`\t\t${groupName}: readonly [`)
+      content.push(groupOutput)
+      content.push(`\t\t];`)
     }
 
-    content.push('};')
-    content.push('export type RouteGroups = typeof groups;')
+    content.push('\t};')
+    content.push('\texport type RouteGroups = typeof groups;')
   }
 
+  content.push('}')
   return content.join('\n')
 }

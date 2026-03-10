@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import { join } from 'node:path'
 import { detectBuildPath, getRelativeBuildPath } from '../src/utils/path_resolver.js'
 
 test.group('Path Resolver', () => {
@@ -9,10 +10,8 @@ test.group('Path Resolver', () => {
     assert.isString(buildPath)
     assert.isNotEmpty(buildPath)
 
-    // Should contain expected directories
-    assert.include(buildPath, 'build')
-    assert.include(buildPath, 'src')
-    assert.include(buildPath, 'client')
+    // Should point to .adonisjs in project root
+    assert.equal(buildPath, join(process.cwd(), '.adonisjs'))
   })
 
   test('should return relative path for logging', async ({ assert }) => {
@@ -21,6 +20,9 @@ test.group('Path Resolver', () => {
     // Should return a string
     assert.isString(relativePath)
     assert.isNotEmpty(relativePath)
+
+    // Should be the .adonisjs folder name
+    assert.equal(relativePath, '.adonisjs')
   })
 
   test('should handle different project structures', async ({ assert }) => {
