@@ -11,7 +11,7 @@
 | instance and you can use codemods to modify the source files.
 |
 */
-import ConfigureCommand from '@adonisjs/core/commands/configure'
+import type ConfigureCommand from '@adonisjs/core/commands/configure'
 import { stubsRoot } from './stubs/main.js'
 import { exec } from 'node:child_process'
 import { promisify } from 'node:util'

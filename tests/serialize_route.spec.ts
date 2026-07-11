@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import { serializeRoute } from '../src/serialize_route.js'
-import { RouteJSON } from '@adonisjs/core/types/http'
+import { type RouteJSON } from '@adonisjs/core/types/http'
 
 test.group('serializeRoute', () => {
   test('should serialize route correctly', ({ assert }) => {

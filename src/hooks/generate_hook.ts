@@ -1,4 +1,3 @@
-import type { AssemblerHookHandler } from '@adonisjs/core/types/app'
 import { exec } from 'node:child_process'
 import { promisify } from 'node:util'
 
@@ -7,16 +6,30 @@ declare global {
   var __izzy_routes_generated_once__: boolean | undefined
 }
 
+interface LoggerLike {
+  info(message: string): void
+  error(message: string): void
+  fatal(error: unknown): void
+}
+
 /**
- * The hook to be executed during the build process. You can perform
+ * Assembler hook executed when the dev server starts. Compatible with both
+ * assembler v7 (`onDevServerStarted` receives `{ logger }`) and assembler v8
+ * (`devServerStarted` receives the DevServer instance).
  */
-const hook: AssemblerHookHandler = async ({ logger }) => {
+const hook = async (context?: { logger?: LoggerLike }) => {
   // Prevent duplicate generation/logging on rapid consecutive triggers
   if (globalThis.__izzy_routes_generated_once__) {
     return
   }
 
   globalThis.__izzy_routes_generated_once__ = true
+
+  const logger: LoggerLike = context?.logger ?? {
+    info: (message) => console.log(message),
+    error: (message) => console.error(message),
+    fatal: (error) => console.error(error),
+  }
 
   try {
     await promisify(exec)('node ace izzy:routes')
