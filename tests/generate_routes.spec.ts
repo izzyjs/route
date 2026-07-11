@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import { definitionContent, javascriptContent } from '../src/generate_routes.js'
-import { SerializedRoute } from '../src/types/manifest.js'
+import { type SerializedRoute } from '../src/types/manifest.js'
 
 function cs(s: string) {
   return s.replace(/ /g, '').replace(/\t/g, '').replace(/\n/g, '')
@@ -48,7 +48,12 @@ export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
 export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+export type RouteName = Exclude<RouteWithName['name'], ''>;
+
+// Route groups
+export declare const groups: {
+};
+export type RouteGroups = typeof groups;`
 
     const generatedDefinitionContent = definitionContent(bucket)
 
@@ -79,7 +84,12 @@ export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
 export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+export type RouteName = Exclude<RouteWithName['name'], ''>;
+
+// Route groups
+export declare const groups: {
+};
+export type RouteGroups = typeof groups;`
 
     const generatedDefinitionContent = definitionContent(bucket)
 
@@ -125,7 +135,9 @@ export const routes = [
 		},
 		"domain": "root"
 	}
-];`
+];
+
+export const groups = {};`
 
     const generatedJavascriptContent = javascriptContent(bucket)
 
@@ -167,7 +179,12 @@ export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
 export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+export type RouteName = Exclude<RouteWithName['name'], ''>;
+
+// Route groups
+export declare const groups: {
+};
+export type RouteGroups = typeof groups;`
 
     const generatedDefinitionContent = definitionContent(bucket)
 
@@ -207,7 +224,12 @@ export type Routes = typeof routes;
 export type Route = Routes[number];
 export type RouteWithName = Extract<Route, { name: string }>;
 export type RouteWithParams = Extract<Route, { params: { required?: ReadonlyArray<string>; optional?: ReadonlyArray<string>; }; }>;
-export type RouteName = Exclude<RouteWithName['name'], ''>;`
+export type RouteName = Exclude<RouteWithName['name'], ''>;
+
+// Route groups
+export declare const groups: {
+};
+export type RouteGroups = typeof groups;`
 
     const generatedDefinitionContent = definitionContent(bucket)
 
@@ -245,7 +267,9 @@ export const routes = [
 		},
 		"domain": "root"
 	}
-];`
+];
+
+export const groups = {};`
 
     const generatedJavascriptContent = javascriptContent(bucket)
 

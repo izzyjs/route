@@ -11,7 +11,7 @@ import type { Method, SerializedRoute } from './types/manifest.js'
 import type { Config, RouteFilter } from './define_config.js'
 import { filterRoutes } from './utils/route_filter.js'
 import { detectBuildPath, getRelativeBuildPath } from './utils/path_resolver.js'
-import { ApplicationService } from '@adonisjs/core/types'
+import { type ApplicationService } from '@adonisjs/core/types'
 
 export default async function generateRoutes() {
   const app = await import('@adonisjs/core/services/app').then((m) => m.default)
@@ -119,10 +119,10 @@ export function javascriptContent(bucket: SerializedRoute[], routeConfig?: Confi
     `export const routes = ${output};`,
   ]
 
-  // Add groups if configured
-  if (routeConfig?.groups) {
-    const groups: Record<string, SerializedRoute[]> = {}
+  // Always emit groups so named imports never fail, even when not configured
+  const groups: Record<string, SerializedRoute[]> = {}
 
+  if (routeConfig?.groups) {
     for (const [groupName, patterns] of Object.entries(routeConfig.groups)) {
       groups[groupName] = bucket.filter((route) =>
         patterns.some((pattern) => {
@@ -132,9 +132,9 @@ export function javascriptContent(bucket: SerializedRoute[], routeConfig?: Confi
         })
       )
     }
-
-    content.push(`export const groups = ${JSON.stringify(groups, null, '\t')};`)
   }
+
+  content.push(`export const groups = ${JSON.stringify(groups, null, '\t')};`)
 
   return content.join('\n\n')
 }
@@ -189,12 +189,12 @@ export function definitionContent(bucket: SerializedRoute[], routeConfig?: Confi
     "export type RouteName = Exclude<RouteWithName['name'], ''>;",
   ]
 
-  // Add groups types if configured (strongly typed to selected routes)
-  if (routeConfig?.groups) {
-    content.push('')
-    content.push('// Route groups')
-    content.push('export declare const groups: {')
+  // Always declare groups so named imports never fail, even when not configured
+  content.push('')
+  content.push('// Route groups')
+  content.push('export declare const groups: {')
 
+  if (routeConfig?.groups) {
     for (const [groupName, patterns] of Object.entries(routeConfig.groups)) {
       const groupRoutes = bucket.filter((route) => {
         return patterns.some((pattern) => {
@@ -209,10 +209,10 @@ export function definitionContent(bucket: SerializedRoute[], routeConfig?: Confi
       content.push(` ${groupOutput}`)
       content.push(`\t];`)
     }
-
-    content.push('};')
-    content.push('export type RouteGroups = typeof groups;')
   }
+
+  content.push('};')
+  content.push('export type RouteGroups = typeof groups;')
 
   return content.join('\n')
 }
