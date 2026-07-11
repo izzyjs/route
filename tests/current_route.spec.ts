@@ -509,6 +509,75 @@ test.group('Routes.current', () => {
     assert.isFalse(Routes.current('posts.filter', { category: 'tech', tag: 'wrong-tag' }))
   })
 
+  test('should distinguish routes with the same path on different domains', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'admin.login-form',
+          path: '/login',
+          method: 'get',
+          domain: 'admin.domain.com',
+        },
+        {
+          name: 'user.login-form',
+          path: '/login',
+          method: 'get',
+          domain: 'user.domain.com',
+        },
+      ],
+      current: '/login',
+      currentHost: 'admin.domain.com',
+    }
+
+    // Same path on both subdomains: only the route whose domain matches
+    // the current hostname should be considered current
+    assert.isTrue(Routes.current('admin.login-form'))
+    assert.isFalse(Routes.current('user.login-form'))
+
+    globalThis.__izzy_route__.currentHost = 'user.domain.com'
+
+    assert.isFalse(Routes.current('admin.login-form'))
+    assert.isTrue(Routes.current('user.login-form'))
+  })
+
+  test('should match domain patterns with dynamic segments', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'tenant.dashboard',
+          path: '/dashboard',
+          method: 'get',
+          domain: ':tenant.domain.com',
+        },
+      ],
+      current: '/dashboard',
+      currentHost: 'acme.domain.com',
+    }
+
+    assert.isTrue(Routes.current('tenant.dashboard'))
+
+    globalThis.__izzy_route__.currentHost = 'acme.other.com'
+
+    assert.isFalse(Routes.current('tenant.dashboard'))
+  })
+
+  test('should skip domain check when current host is unknown', async ({ assert }) => {
+    globalThis.__izzy_route__ = {
+      routes: [
+        {
+          name: 'admin.login-form',
+          path: '/login',
+          method: 'get',
+          domain: 'admin.domain.com',
+        },
+      ],
+      current: '/login',
+    }
+
+    // Backwards compatible: no currentHost recorded, path match wins
+    assert.isTrue(Routes.current('admin.login-form'))
+  })
+
   test('should handle mixed required and optional parameters in current route matching', async ({
     assert,
   }) => {

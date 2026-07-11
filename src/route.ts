@@ -295,16 +295,19 @@ export class Route extends String {
   static izzy(): GlobalIzzyJs {
     let routes: SerializedRoute[]
     let currentRoute: string
+    let currentHost: string | undefined
 
     if (isBrowser()) {
       routes = window.__izzy_route__.routes
       currentRoute = window.location.pathname
+      currentHost = window.location.hostname
     } else {
       routes = globalThis.__izzy_route__.routes
       currentRoute = globalThis.__izzy_route__.current
+      currentHost = globalThis.__izzy_route__.currentHost
     }
 
-    return { routes, current: currentRoute }
+    return { routes, current: currentRoute, currentHost }
   }
 
   toString() {
@@ -314,13 +317,25 @@ export class Route extends String {
 
 export class Routes {
   private readonly currentRoute: string
+  private readonly currentHost: string | undefined
   readonly routes: SerializedRoute[]
 
   constructor() {
-    const { routes, current: currentRoute } = Route.izzy()
+    const { routes, current: currentRoute, currentHost } = Route.izzy()
 
     this.routes = routes
     this.currentRoute = currentRoute
+    this.currentHost = currentHost
+  }
+
+  /**
+   * Check if a hostname matches a route domain pattern.
+   * Dynamic segments like `:tenant.example.com` match any value.
+   */
+  private static matchesDomain(domain: string, hostname: string): boolean {
+    const pattern = domain.replace(/\./g, '\\.').replace(/:\w+/g, '[^.]+')
+
+    return new RegExp(`^${pattern}$`).test(hostname)
   }
 
   /**
@@ -424,7 +439,19 @@ export class Routes {
 
     const route = Route.new(routeName, params)
 
-    return routes.currentRoute === route.toString()
+    if (routes.currentRoute !== route.toString()) {
+      return false
+    }
+
+    // When the route belongs to a specific domain, the current hostname
+    // must match it, so identical paths on different subdomains don't collide
+    const serialized = routes.routes.find((r) => 'name' in r && r.name === routeName)
+
+    if (serialized && serialized.domain !== 'root' && routes.currentHost) {
+      return Routes.matchesDomain(serialized.domain, routes.currentHost)
+    }
+
+    return true
   }
 
   /**
